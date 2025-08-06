@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+    <head>
+        <title></title>
+        <link href="style.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <div class = "content">
+            <div>
+                <label>Select document type:</label>
+                <button class = "doc-btn" onclick="docswitch()">PDF</button>
+            </div>
+
+            <div>
+                <label for="file">Select a file:</label>
+                <input type="file" id="file" name="file"> 
+            </div>
+
+            <button onclick="generate()">GENERATE</button>
+
+            <hr>
+
+            <div class = "output">
+                
+            </div>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+</html>
