@@ -10,7 +10,7 @@ import speech_recognition as sr
 from pydub import AudioSegment
 from PIL import Image
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r"E:\tesseract\tesseract.exe"  # Update this path accordingly
+pytesseract.pytesseract.tesseract_cmd = r"E:\tesseract\tesseract.exe" 
 
 # flask setup #
 app = Flask(__name__)
@@ -28,7 +28,7 @@ print(get_key())
 
 
 # openai setup #
-client = openai.OpenAI(api_key=f"{get_key()}")  # Replace with your actual API key
+client = openai.OpenAI(api_key=f"{get_key()}")
 
 
 # main functions #
@@ -44,26 +44,19 @@ def extract_text_from_docx(docx_path):
     text = "\n".join(para.text for para in doc.paragraphs if para.text.strip())
     return text.strip()
 
-def extract_from_png(img_path):
+def extract_from_image(img_path):
     """Extract text from an image using OCR."""
     image = Image.open(img_path)
     text = pytesseract.image_to_string(image)
     return text.strip()
-
-def extract_from_jpeg(img_path):
-    """Extract text from an image using OCR."""
-    image = Image.open(img_path)
-    text = pytesseract.image_to_string(image)
-    return text.strip()
-
 def extract_from_audio(audio_path):
     """Extract text from an audio file using speech recognition."""
     recognizer = sr.Recognizer()
     audio = AudioSegment.from_file(audio_path)
-    audio = audio.set_channels(1).set_frame_rate(16000)
+    audio = audio.set_channels(1).set_frame_rate(16000)  # Normalize audio
     temp_wav = "temp.wav"
     audio.export(temp_wav, format="wav")
-    
+
     with sr.AudioFile(temp_wav) as source:
         audio_data = recognizer.record(source)
         try:
@@ -72,19 +65,19 @@ def extract_from_audio(audio_path):
             text = ""
         except sr.RequestError:
             text = "Speech Recognition API unavailable"
+
     os.remove(temp_wav)
     return text.strip()
-
+    
 def create_notes(file_path, file_type):
     if file_type == "PDF":
         text = extract_text_from_pdf(file_path)
     elif file_type == "DOCX":
         text = extract_text_from_docx(file_path)
-    elif file_type == "PNG":
-        text = extract_from_png(file_path)
-    elif file_type == "JPEG":
-        text = extract_from_jpeg(file_path)
-    ###
+    elif file_type == ["PNG", "JPEG"]:
+        text = extract_from_image(file_path)
+    elif file_type in ["MP3", "WAV"]:
+        text = extract_from_audio(file_path)
     else:
         return file_type, "Unsupported file type"
 
@@ -117,7 +110,7 @@ def process():
     return jsonify({"output": notes})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 '''
 elif file_type == "MP3":
     text = extract_from_audio(file_path)
@@ -147,4 +140,4 @@ def extract_from_audio(audio_path):
             text = "Speech Recognition API unavailable"
     os.remove(temp_wav)
     return text.strip()
-''''
+'''
