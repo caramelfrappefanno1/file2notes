@@ -11,6 +11,7 @@ from pydub import AudioSegment
 from PIL import Image
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r"E:\tesseract\tesseract.exe" 
+import base64
 
 # flask setup #
 app = Flask(__name__)
@@ -45,10 +46,28 @@ def extract_text_from_docx(docx_path):
     return text.strip()
 
 def extract_from_image(img_path):
-    """Extract text from an image using OCR."""
-    image = Image.open(img_path)
-    text = pytesseract.image_to_string(image)
-    return text.strip()
+    """Extract text from an image using OpenAI's Vision API (OCR)."""
+    with open(img_path, "rb") as f:
+        img_b64 = base64.b64encode(f.read()).decode("utf-8")
+        img_data_uri = f"data:image/jpeg;base64,{img_b64}"  # works for jpeg/png
+
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",  # vision-capable
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Extract all the words from this image, keep line breaks if possible."},
+                    {"type": "image_url", "image_url": {"url": img_data_uri}}
+                ]
+            }
+        ],
+        max_tokens=1024,
+    )
+
+    return completion.choices[0].message.content.strip()
+
+
 def extract_from_audio(audio_path):
     """Extract text from an audio file using speech recognition."""
     recognizer = sr.Recognizer()
@@ -74,7 +93,7 @@ def create_notes(file_path, file_type):
         text = extract_text_from_pdf(file_path)
     elif file_type == "DOCX":
         text = extract_text_from_docx(file_path)
-    elif file_type == ["PNG", "JPEG"]:
+    elif file_type in ["PNG", "JPEG"]:
         text = extract_from_image(file_path)
     elif file_type in ["MP3", "WAV"]:
         text = extract_from_audio(file_path)
