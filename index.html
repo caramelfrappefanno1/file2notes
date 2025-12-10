@@ -5,10 +5,21 @@
     </head>
 
     <body>
-        <div class = "content">
+        <div class="content">
             <div>
                 <label>Select document type:</label>
-                <button class = "doc-btn" onclick="docswitch()">PDF</button>
+                <select name="type-select" id="type-select">Select
+                    <option value="none">--Select--</option>
+                    <option value="PDF">PDF</option>
+                    <option value="DOCX">DOCX</option>
+                    <option value="PNG">PNG</option>
+                    <option value="JPEG">JPEG</option>
+                    <option value="MP3">MP3</option>
+                </select>
+            </div>
+
+            <div class="submit-pnl">
+                <button id="type" onclick="docswitch()">Submit</button>
             </div>
 
             <div>

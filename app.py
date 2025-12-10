@@ -10,7 +10,6 @@ import speech_recognition as sr
 from pydub import AudioSegment
 from PIL import Image
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r"E:\tesseract\tesseract.exe" 
 import base64
 
 # flask setup #
