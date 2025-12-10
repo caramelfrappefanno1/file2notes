@@ -14,9 +14,7 @@
   --shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
 }
 
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
 body {
   margin: 0;
@@ -30,15 +28,13 @@ body {
   max-width: 840px;
   margin: 0 auto;
   padding: 24px;
-  background:  rgba(255,255,255,.04);
+  background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.08);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
-h1 {
-  text-align: center;
-}
+h1 { text-align: center; }
 
 p {
   font-size: 12px;
@@ -46,9 +42,7 @@ p {
   text-align: center;
 }
 
-.title {
-  padding-bottom: 10px;
-}
+.title { padding-bottom: 10px; }
 
 label {
   display: block;
@@ -66,21 +60,14 @@ hr {
 
 .buttons {
   display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
+  grid-template-columns: 1fr auto auto;
   gap: var(--gap);
   margin-bottom: 18px;
 }
 
-.generate {
-    width: 150px;
-}
+.file-select { padding-bottom: 10px; }
 
-.file-select {
-    padding-bottom: 10px;
-}
-
-button, .doc-btn {
+button, .doc-btn, .quiz-btn {
   --btn-pad-x: 16px;
   --btn-pad-y: 10px;
   appearance: none;
@@ -90,43 +77,35 @@ button, .doc-btn {
   padding: var(--btn-pad-y) var(--btn-pad-x);
   border-radius: 12px;
   font-weight: 650;
-  letter-spacing: .2px;
   cursor: pointer;
   transition: transform .08s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
-  box-shadow: 0 0 0 0 rgba(77,145,255,0);
 }
 
-button:hover, .doc-btn:hover {
-  background: #203041, #1a2836;
+button:hover, .doc-btn:hover, .quiz-btn:hover {
+  background: #203041;
   border-color: rgba(255,255,255,.18);
 }
 
-button:active, .doc-btn:active {
+button:active, .doc-btn:active, .quiz-btn:active {
   transform: translateY(1px);
 }
 
+/* Generate Notes button */
 button[onclick="generate()"] {
   background: var(--brand);
-  border-color: rgba(255,255,255,.2);
   color: #051120;
   text-shadow: 0 1px 0 rgba(255,255,255,.3);
 }
 
-button[onclick="generate()"]:hover {
-  filter: brightness(1.05);
-}
-
-button[onclick="generate()"]:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.doc-btn.is-active {
+/* Active Mode Buttons (DOC / QUIZ) */
+.doc-btn.is-active,
+.quiz-btn.is-active {
   background: #1f3146;
   border-color: var(--brand);
   box-shadow: 0 0 0 3px rgba(110,168,254,.22);
 }
 
+/* File Upload */
 input[type="file"] {
   width: 100%;
   display: block;
@@ -137,27 +116,9 @@ input[type="file"] {
   border-radius: 12px;
 }
 
-input[type="file"]::file-selector-button {
-  margin-right: 12px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: #1a2532;
-  padding: 8px 12px;
-  border-radius: 10px;
-  color: var(--text);
-  font-weight: 600;
-  cursor: pointer;
-  transition: filter .2s ease, transform .08s ease;
-}
-
-input[type="file"]::file-selector-button:hover { filter: brightness(1.05); }
-input[type="file"]::file-selector-button:active { transform: translateY(1px); }
-
-button:focus-visible, .doc-btn:focus-visible, input[type="file"]:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.output {
+/* Output and Quiz Box Styling */
+.output,
+.quiz-view {
   min-height: 180px;
   border: 1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.01);
@@ -165,6 +126,7 @@ button:focus-visible, .doc-btn:focus-visible, input[type="file"]:focus-visible {
   padding: 16px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
   font-family: consolas;
+  transition: opacity .25s ease;
 }
 
 .output:empty::before {
@@ -172,11 +134,24 @@ button:focus-visible, .doc-btn:focus-visible, input[type="file"]:focus-visible {
   color: var(--muted);
 }
 
+/* Quiz Layout */
+.quiz-content ol, .quiz-content ul {
+  padding-left: 20px;
+}
+
+.quiz-content li {
+  margin-bottom: 16px;
+}
+
+.quiz-content strong {
+  color: var(--brand);
+}
+
 .hidden { display: none !important; }
 
 @media (max-width: 560px) {
   body { padding: 16px; }
   .content { padding: 18px; }
-  .doctype { grid-template-columns: 1fr; }
-  button, .doc-btn { width: 100%; }
+  .buttons { grid-template-columns: 1fr; }
+  button, .doc-btn, .quiz-btn { width: 100%; }
 }
