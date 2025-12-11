@@ -165,10 +165,11 @@ def genquiz():
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(file_path)  # Save file to the server
+    quiz = create_quiz(file_path, file_type)
 
     os.remove(file_path)  # Clean up uploaded file after processing
 
-    return jsonify({"output": create_quiz(file_path, file_type)})
+    return jsonify({"output": quiz})
 
 @app.route("/answerquiz", methods=["POST"])
 def answer():
