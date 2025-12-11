@@ -27,7 +27,7 @@
                 <input type="file" id="file" name="file"> 
             </div>
 
-            <label class="switch">
+            <label class="switch" aria-checked="false">
                 <input type="checkbox">
                 <span class="slider"></span>
             </label>
@@ -43,7 +43,7 @@
             <div class="answerquiz">
                 <input class="ansIn" type="text">
                 <div>
-                    <button class="ansBtn" onclick="answer()">Submit answer</button>
+                    <button class="ansBtn" onclick="submitAns()">Submit answer</button>
                     <button class="revealAns" onclick="revealAnswer()">Reveal Answer</button>
                     <div class="ansPnl">Hint (Only if you click the hint button!)</div>
                 </div>
