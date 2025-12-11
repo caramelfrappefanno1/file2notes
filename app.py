@@ -173,7 +173,23 @@ def genquiz():
 
 @app.route("/answerquiz", methods=["POST"])
 def answer():
-    pass
+    question = request.data.decode('utf-8')
+
+    if not question:
+        return jsonify({"error": "No question provided in request body."}), 400
+
+    prompt = f"Give a clear, short, and concise answer to the given question:\n{question}"
+
+    completion = client.chat.completions.create(
+        max_tokens=4096,
+        n=1,
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    answer = completion.choices[0].message.content
+
+    return jsonify({"output": answer})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

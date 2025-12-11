@@ -83,8 +83,51 @@ async function quiz() {
             console.error("Fetch error:", error);
         }
 
-        console.log("Quiz generated.")
+        console.log("Quiz function completed.");
     }
+}
+
+async function answer() {
+    const answer = document.querySelector(".ansIn").value
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/answerquiz", {
+            method: "POST",
+            body: question
+        });
+        
+        const data = await response.json();
+        outputDiv.innerHTML = data.output;
+    } catch (error) {
+        outputDiv.textContent = "Error processing the file.";
+        console.error("Fetch error:", error);
+    }
+
+    console.log("Answer function completed.");
+}
+
+async function revealHint() {
+    console.log("Reveal Hint function completed.")
+}
+
+async function revealAnswer() {
+    const question = document.querySelector(".output");
+    const answerTab = document.querySelector(".ansPnl")
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/answerquiz", {
+            method: "POST",
+            body: question
+        });
+        
+        const data = await response.json();
+        answerTab.innerHTML = data.output;
+    } catch (error) {
+        outputDiv.textContent = "Error processing the file.";
+        console.error("Fetch error:", error);
+    }
+
+    console.log("Hint function completed.")
 }
 
 async function generate() {
