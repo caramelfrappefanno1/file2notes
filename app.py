@@ -1,6 +1,7 @@
 # imports #
 import pdfplumber
 import openai
+import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -125,18 +126,47 @@ def create_quiz(file_path, file_type):
     elif file_type in ["MP3", "WAV"]:
         text = extract_from_audio(file_path)
     else:
-        return file_type, "Unsupported file type"
+        return {"error": "Unsupported file type"}
 
-    prompt = f"Generate a question based on the following text. Question should be short. Format in HTML in raw text. Remove the references portion.\n{text}"
+    prompt = f"""
+Generate a multiple choice quiz.
+
+Rules:
+- Exactly 10 questions
+- 4 choices each
+- One correct answer
+- Output ONLY valid JSON
+- No markdown
+- No explanations
+
+JSON format:
+{{
+  "questions": [
+    {{
+      "question": "text",
+      "choices": ["A", "B", "C", "D"],
+      "answer": 0
+    }}
+  ]
+}}
+
+Text:
+{text}
+"""
 
     completion = client.chat.completions.create(
-        max_tokens=4096,
-        n=1,
         model="gpt-4o-mini",
+        max_tokens=4096,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    return completion.choices[0].message.content
+    raw = completion.choices[0].message.content.strip()
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        print("❌ Invalid JSON from model:\n", raw)
+        return {"error": "Quiz generation failed"}
 
 # main flask stuff
 @app.route("/notegen", methods=["POST"])
@@ -157,19 +187,17 @@ def gennote():
 
 @app.route("/quizgen", methods=["POST"])
 def genquiz():
-    if "file" not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
-
     file = request.files["file"]
-    file_type = request.form.get("doctype", "PDF").upper()  # Default to PDF
+    file_type = request.form.get("doctype").upper()
+
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(file_path)  # Save file to the server
+    file.save(file_path)
+
     quiz = create_quiz(file_path, file_type)
+    os.remove(file_path)
 
-    os.remove(file_path)  # Clean up uploaded file after processing
-
-    return jsonify({"output": quiz})
+    return jsonify(quiz)
 
 @app.route("/answerquiz", methods=["POST"])
 def answer():

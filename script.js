@@ -1,24 +1,8 @@
 let currentType;
+let dropdown = document.getElementById("type-select");
 let switchOn = false;
 let question;
-
-// Changes selected filetype
-function docswitch() {
-    const dropdown = document.getElementById("type-select");
-    currentType = dropdown.value;
-
-    console.log("Current document type:", currentType); // Debugging output
-}
-
-document.querySelector(".switch").addEventListener("change", function(event) {
-    if (event.target.checked) {
-        switchOn = true;
-    } else {
-        switchOn = false;
-    }
-
-    console.log("Value of switchOn: ", switchOn);
-})
+let quizData = [];
 
 document.getElementById("file").addEventListener("change", function(event) {
     const file = event.target.files[0]; // Get the first selected file
@@ -39,89 +23,62 @@ async function quiz() {
     const fileInput = document.getElementById("file");
     const outputDiv = document.querySelector(".output");
 
-    if (currentType == "none") {
-        outputDiv.innerHTML = `You didn't pick a filetype.`;
-        return; 
+    if (!fileInput.files.length) {
+        outputDiv.innerHTML = "Please select a file.";
+        return;
     }
 
-    else {
-        if (!fileInput.files.length) {
-            outputDiv.innerHTML = `Please select a file first.`;
-            return;
-        }
+    outputDiv.innerHTML = "Generating quiz...";
 
-        outputDiv.innerHTML = `Making quiz item...`;
+    const formData = new FormData();
+    formData.append("doctype", currentType);
+    formData.append("file", fileInput.files[0]);
 
-        const file = fileInput.files[0]; 
-        const formData = new FormData();
-        formData.append("doctype", currentType);
-        formData.append("file", file);
+    const response = await fetch("http://127.0.0.1:5000/quizgen", {
+        method: "POST",
+        body: formData
+    });
 
-        try {
-            const response = await fetch("http://127.0.0.1:5000/quizgen", {
-                method: "POST",
-                body: formData
-            });
-            
-            const data = await response.json();
-            outputDiv.innerHTML = data.output;
-        } catch (error) {
-            outputDiv.textContent = "Error processing the file.";
-            console.error("Fetch error:", error);
-        }
+    const data = await response.json();
+    quizData = data;
 
-        console.log("Quiz function completed.");
-    }
+    renderQuiz();
 }
 
-async function answer() {
-    const answer = document.querySelector(".ansIn").value
+function renderQuiz() {
+    const outputDiv = document.querySelector(".output");
+    outputDiv.innerHTML = "";
 
-    try {
-        const response = await fetch("http://127.0.0.1:5000/answerquiz", {
-            method: "POST",
-            body: question
+    quizData.questions.forEach((q, i) => {
+        let html = `<div class="question">
+            <p><strong>${i + 1}. ${q.question}</strong></p>`;
+
+        q.choices.forEach((choice, j) => {
+            html += `
+                <label>
+                    <input type="radio" name="q${i}" value="${j}">
+                    ${choice}
+                </label><br>`;
         });
-        
-        const data = await response.json();
-        outputDiv.innerHTML = data.output;
-    } catch (error) {
-        outputDiv.textContent = "Error processing the file.";
-        console.error("Fetch error:", error);
-    }
 
-    console.log("Answer function completed.");
+        html += `</div><hr>`;
+        outputDiv.innerHTML += html;
+    });
+
+    outputDiv.innerHTML += `<button onclick="submitQuiz()">Submit Quiz</button>`;
 }
 
-async function revealHint() {
-    console.log("Reveal Hint function completed.")
-}
+function submitQuiz() {
+    let score = 0;
 
-async function revealAnswer() {
-    const answerTab = document.querySelector(".ansPnl")
-    const question = document.querySelector(".output").textContent
-
-    console.log("Hint function completed.")
-
-    if (currentType == "none") {
-        outputDiv.innerHTML = `You didn't pick a filetype.`;
-        return; 
-    }
-
-    else {
-        try {
-            const response = await fetch("http://127.0.0.1:5000/answerquiz", {
-                method: "POST",
-                body: question
-            });
-            
-            const data = await response.json();
-            answerTab.innerHTML = data.output;
-        } catch (error) {
-            outputDiv.textContent = "Error processing the file.";
-            console.error("Fetch error:", error);
+    quizData.questions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected && Number(selected.value) === q.answer) {
+            score++;
         }
-    }
+    });
+
+    alert(`You scored ${score} / ${quizData.questions.length}`);
 }
 
 async function generate() {
@@ -163,38 +120,13 @@ async function generate() {
     }
 }
 
-async function submitAns() {
-    const submitted = document.querySelector(".ansIn").value;
-    const outputDiv = document.querySelector(".output");
-    const answerTab = document.querySelector(".ansPnl");
 
-    if (currentType == "none") {
-        outputDiv.innerHTML = `You didn't pick a filetype.`;
-        return;
-    }
-
-    else {
-        try {
-            const response = await fetch("http://127.0.0.1:5000/resolveanswer", {
-                method: "POST",
-                body: "Please check if this answer\n" + submitted + "\nIs a correct answer to the question\n" + outputDiv.innerHTML + "\n"
-            });
-            
-            const data = await response.json();
-            answerTab.innerHTML = data.output;
-        } catch (error) {
-            outputDiv.textContent = "Error processing the file.";
-            console.error("Fetch error:", error);
-        }
-    }
-
-    console.log("Submit function completed.")
-}
 
 async function start() {
-    const switchSelector = document.querySelector(".switch");
+    currentType = dropdown.value;
+    const switchSelector = document.querySelector(".toggle");
 
-    if (switchOn) {
+    if (switchSelector.checked) {
         console.log("Quiz Mode on.");
         await quiz();
         return;
