@@ -1,16 +1,11 @@
 # imports #
-import pdfplumber
 import openai
+import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from docx import Document
-import os
-import speech_recognition as sr
-from pydub import AudioSegment
-from PIL import Image
-import pytesseract
-import base64
+from util import *
+import requests # to summarize/quiz a website 👀
 
 # flask setup #
 app = Flask(__name__)
@@ -35,74 +30,27 @@ print(get_key())
 # openai setup #
 client = openai.OpenAI(api_key=f"{get_key()}")
 
-
-# main functions #
-def extract_text_from_pdf(pdf_path):
-    """Extract text content from a PDF file using pdfplumber."""
-    with pdfplumber.open(pdf_path) as pdf:
-        text = " ".join(page.extract_text() or "" for page in pdf.pages)
-    return text.strip()
-
-def extract_text_from_docx(docx_path):
-    """Extract text content from a DOCX file using python-docx."""
-    doc = Document(docx_path)
-    text = "\n".join(para.text for para in doc.paragraphs if para.text.strip())
-    return text.strip()
-
-def extract_from_image(img_path):
-    """Extract text from an image using OpenAI's Vision API (OCR)."""
-    with open(img_path, "rb") as f:
-        img_b64 = base64.b64encode(f.read()).decode("utf-8")
-        img_data_uri = f"data:image/jpeg;base64,{img_b64}"  # works for jpeg/png
-
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",  # vision-capable
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": "Extract all the words from this image, keep line breaks if possible."},
-                    {"type": "image_url", "image_url": {"url": img_data_uri}}
-                ]
-            }
-        ],
-        max_tokens=1024,
-    )
-
-    return completion.choices[0].message.content.strip()
-
-
-def extract_from_audio(audio_path):
-    """Extract text from an audio file using speech recognition."""
-    recognizer = sr.Recognizer()
-    audio = AudioSegment.from_file(audio_path)
-    audio = audio.set_channels(1).set_frame_rate(16000)  # Normalize audio
-    temp_wav = "temp.wav"
-    audio.export(temp_wav, format="wav")
-
-    with sr.AudioFile(temp_wav) as source:
-        audio_data = recognizer.record(source)
-        try:
-            text = recognizer.recognize_google(audio_data)
-        except sr.UnknownValueError:
-            text = ""
-        except sr.RequestError:
-            text = "Speech Recognition API unavailable"
-
-    os.remove(temp_wav)
-    return text.strip()
+# actual app api
     
-def create_notes(file_path, file_type):
-    if file_type == "PDF":
+def create_notes(file_path):
+    root, file_ext = os.path.splitext(file_path)
+    file_ext = file_ext[1:]
+    text = ""
+
+    if file_ext == "pdf":
         text = extract_text_from_pdf(file_path)
-    elif file_type == "DOCX":
+    elif file_ext == "docx":
         text = extract_text_from_docx(file_path)
-    elif file_type in ["PNG", "JPEG"]:
+    elif file_ext in ["png", "jpeg", "jpg"]:
         text = extract_from_image(file_path)
-    elif file_type in ["MP3", "WAV"]:
+    elif file_ext in ["mp3", "wav"]:
         text = extract_from_audio(file_path)
+    elif file_ext == "txt":
+        with open("file_path", "r") as f:
+            text = f.read()
+            f.close()
     else:
-        return file_type, "Unsupported file type"
+        return file_ext, "Unsupported file type"
 
     prompt = f"Generate notes based on the following text using the bullet point note-taking method. Notes should be short but comprehensive. Format in HTML in raw text. Remove the references portion.\n{text}"
 
@@ -115,28 +63,66 @@ def create_notes(file_path, file_type):
 
     return completion.choices[0].message.content
 
-def create_quiz(file_path, file_type):
-    if file_type == "PDF":
-        text = extract_text_from_pdf(file_path)
-    elif file_type == "DOCX":
-        text = extract_text_from_docx(file_path)
-    elif file_type in ["PNG", "JPEG"]:
-        text = extract_from_image(file_path)
-    elif file_type in ["MP3", "WAV"]:
-        text = extract_from_audio(file_path)
-    else:
-        return file_type, "Unsupported file type"
+def create_quiz(file_path):
+    root, file_ext = os.path.splitext(file_path)
+    file_ext = file_ext[1:]
 
-    prompt = f"Generate a question based on the following text. Question should be short. Format in HTML in raw text. Remove the references portion.\n{text}"
+    if file_ext == "pdf":
+        text = extract_text_from_pdf(file_path)
+    elif file_ext == "docx":
+        text = extract_text_from_docx(file_path)
+    elif file_ext in ["png", "jpeg", "jpg"]:
+        text = extract_from_image(file_path)
+    elif file_ext in ["mp3", "wav"]:
+        text = extract_from_audio(file_path)
+    elif file_ext == "txt":
+        with open(file_path, "r") as f:
+            text = f.read()
+            f.close()
+    else:
+        return file_ext, "Unsupported file type"
+
+    prompt = f"""
+Generate a multiple choice quiz.
+
+Rules:
+- Exactly 10 questions
+- 4 choices each
+- One correct answer
+- Output ONLY valid JSON
+- No markdown
+- No explanations
+
+JSON format:
+{{
+  "questions": [
+    {{
+      "question": "text",
+      "choices": ["A", "B", "C", "D"],
+      "answer": 0
+    }}
+  ]
+}}
+
+Text:
+{text}
+"""
+    
+# add hint/correct part
 
     completion = client.chat.completions.create(
-        max_tokens=4096,
-        n=1,
         model="gpt-4o-mini",
+        max_tokens=4096,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    return completion.choices[0].message.content
+    raw = completion.choices[0].message.content.strip()
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        print("❌ Invalid JSON from model:\n", raw)
+        return {"error": "Quiz generation failed"}
 
 # main flask stuff
 @app.route("/notegen", methods=["POST"])
@@ -148,28 +134,27 @@ def gennote():
     file_type = request.form.get("doctype", "PDF").upper()  # Default to PDF
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    print(file_path)
     file.save(file_path)  # Save file to the server
 
-    notes = create_notes(file_path, file_type)
+    notes = create_notes(file_path)
     os.remove(file_path)  # Clean up uploaded file after processing
 
     return jsonify({"output": notes})
 
 @app.route("/quizgen", methods=["POST"])
 def genquiz():
-    if "file" not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
-
     file = request.files["file"]
-    file_type = request.form.get("doctype", "PDF").upper()  # Default to PDF
+    file_type = request.form.get("doctype").upper()
+
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(file_path)  # Save file to the server
-    quiz = create_quiz(file_path, file_type)
+    file.save(file_path)
 
-    os.remove(file_path)  # Clean up uploaded file after processing
+    quiz = create_quiz(file_path)
+    os.remove(file_path)
 
-    return jsonify({"output": quiz})
+    return jsonify(quiz)
 
 @app.route("/answerquiz", methods=["POST"])
 def answer():

@@ -1,4 +1,5 @@
 * { box-sizing: border-box; }
+
 :root {
   --bg: #0b0f14;
   --surface: #0f1720;
@@ -14,14 +15,12 @@
   --shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
 }
 
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
 body {
   margin: 0;
   padding: 24px;
-  background: #0b1420;
+  background: var(--bg);
   color: var(--text);
   font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
 }
@@ -30,15 +29,13 @@ body {
   max-width: 840px;
   margin: 0 auto;
   padding: 24px;
-  background:  rgba(255,255,255,.04);
+  background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.08);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
-h1 {
-  text-align: center;
-}
+h1 { text-align: center; }
 
 p {
   font-size: 12px;
@@ -46,9 +43,7 @@ p {
   text-align: center;
 }
 
-.title {
-  padding-bottom: 10px;
-}
+.title { padding-bottom: 10px; }
 
 label {
   display: block;
@@ -64,22 +59,6 @@ hr {
   background: rgba(255,255,255,.12);
 }
 
-.buttons {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
-  gap: var(--gap);
-  margin-bottom: 18px;
-}
-
-.generate {
-    width: 150px;
-}
-
-.file-select {
-    padding-bottom: 10px;
-}
-
 button, .doc-btn {
   --btn-pad-x: 16px;
   --btn-pad-y: 10px;
@@ -89,21 +68,19 @@ button, .doc-btn {
   color: var(--text);
   padding: var(--btn-pad-y) var(--btn-pad-x);
   border-radius: 12px;
-  font-weight: 650;
+  font-weight: 600;
   letter-spacing: .2px;
   cursor: pointer;
-  transition: transform .08s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  transition: all 0.2s ease;
   box-shadow: 0 0 0 0 rgba(77,145,255,0);
 }
 
-button:hover, .doc-btn:hover {
-  background: #203041, #1a2836;
-  border-color: rgba(255,255,255,.18);
+button:hover, .doc-btn:hover { 
+  background: #203041; 
+  border-color: rgba(255,255,255,.18); 
 }
 
-button:active, .doc-btn:active {
-  transform: translateY(1px);
-}
+button:active, .doc-btn:active { transform: translateY(1px); }
 
 button[onclick="generate()"] {
   background: var(--brand);
@@ -112,11 +89,11 @@ button[onclick="generate()"] {
   text-shadow: 0 1px 0 rgba(255,255,255,.3);
 }
 
-button[onclick="generate()"]:hover {
-  filter: brightness(1.05);
-}
+button[onclick="generate()"]:hover { filter: brightness(1.05); }
 
-button[onclick="generate()"]:focus-visible {
+button[onclick="generate()"]:focus-visible,
+.doc-btn:focus-visible,
+input[type="file"]:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
@@ -146,16 +123,11 @@ input[type="file"]::file-selector-button {
   color: var(--text);
   font-weight: 600;
   cursor: pointer;
-  transition: filter .2s ease, transform .08s ease;
+  transition: all .2s ease;
 }
 
 input[type="file"]::file-selector-button:hover { filter: brightness(1.05); }
 input[type="file"]::file-selector-button:active { transform: translateY(1px); }
-
-button:focus-visible, .doc-btn:focus-visible, input[type="file"]:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-}
 
 .output {
   min-height: 180px;
@@ -164,11 +136,12 @@ button:focus-visible, .doc-btn:focus-visible, input[type="file"]:focus-visible {
   border-radius: 12px;
   padding: 16px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
-  font-family: consolas;
+  font-family: Consolas, monospace;
+  overflow-x: auto;
 }
 
 .output:empty::before {
-  content: "Your generated output will appear here ✨";
+  content: "Your generated output will appear here.";
   color: var(--muted);
 }
 
@@ -177,14 +150,14 @@ button:focus-visible, .doc-btn:focus-visible, input[type="file"]:focus-visible {
 @media (max-width: 560px) {
   body { padding: 16px; }
   .content { padding: 18px; }
-  .doctype { grid-template-columns: 1fr; }
   button, .doc-btn { width: 100%; }
 }
 
+/* Toggle Switch */
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
+  width: 80px;
   height: 34px;
 }
 
@@ -197,39 +170,66 @@ button:focus-visible, .doc-btn:focus-visible, input[type="file"]:focus-visible {
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
+  inset: 0;
+  background-color: #555;
   transition: .4s;
   border-radius: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 600;
 }
 
 .slider:before {
   position: absolute;
-  content: "Generate";
+  content: "";
   height: 26px;
   width: 26px;
   left: 4px;
   bottom: 4px;
   background-color: white;
-  -webkit-transition: .4s;
   transition: .4s;
   border-radius: 50%;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:checked + .slider::after {
-  content: "Quiz Mode";
+  background-color: var(--brand);
 }
 
 input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
+  transform: translateX(46px);
+}
+
+/* Quiz Specific Styling */
+.question {
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  background: rgba(255,255,255,.02);
+}
+
+.question p {
+  margin: 0 0 8px;
+}
+
+.question label {
+  display: block;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.question input[type="radio"] {
+  margin-right: 8px;
+}
+
+.select-hover {
+  visibility: hidden;
+}
+
+.select-file:hover .hover-text {
+  visibility: visible;
+  opacity: 1;
 }
