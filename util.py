@@ -4,6 +4,22 @@ import base64
 import speech_recognition as sr
 import os
 from pydub import AudioSegment
+from PIL import Image
+import io
+import fitz
+
+def extract_img_from_pdf(pdf_path):
+    doc = fitz.open(pdf_path)
+
+    for page in range(len(doc)):
+        for img_num, img in enumerate(doc[page].get_images(full=True)):
+            xref = img[0]
+            base_img = doc.extract_image(xref)
+            img_bytes = base_img["image"]
+            img_ext = base_img["ext"]
+
+            with open(f"uploads/images/img_{page}_{img_num}.{img_ext}", "wb") as f:
+                f.write(img_bytes)
 
 def extract_text_from_pdf(pdf_path):
     """Extract text content from a PDF file using pdfplumber."""
