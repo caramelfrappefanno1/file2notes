@@ -224,3 +224,12 @@ input:checked + .slider:before {
 .question input[type="radio"] {
   margin-right: 8px;
 }
+
+.select-hover {
+  visibility: hidden;
+}
+
+.select-file:hover .hover-text {
+  visibility: visible;
+  opacity: 1;
+}

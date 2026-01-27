@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from util import *
+import requests # to summarize/quiz a website 👀
 
 # flask setup #
 app = Flask(__name__)
@@ -29,21 +30,27 @@ print(get_key())
 # openai setup #
 client = openai.OpenAI(api_key=f"{get_key()}")
 
-
-# main functions #
-
+# actual app api
     
-def create_notes(file_path, file_type):
-    if file_type == "PDF":
+def create_notes(file_path):
+    root, file_ext = os.path.splitext(file_path)
+    file_ext = file_ext[1:]
+    text = ""
+
+    if file_ext == "pdf":
         text = extract_text_from_pdf(file_path)
-    elif file_type == "DOCX":
+    elif file_ext == "docx":
         text = extract_text_from_docx(file_path)
-    elif file_type in ["PNG", "JPEG"]:
+    elif file_ext in ["png", "jpeg", "jpg"]:
         text = extract_from_image(file_path)
-    elif file_type in ["MP3", "WAV"]:
+    elif file_ext in ["mp3", "wav"]:
         text = extract_from_audio(file_path)
+    elif file_ext == "txt":
+        with open("file_path", "r") as f:
+            text = f.read()
+            f.close()
     else:
-        return file_type, "Unsupported file type"
+        return file_ext, "Unsupported file type"
 
     prompt = f"Generate notes based on the following text using the bullet point note-taking method. Notes should be short but comprehensive. Format in HTML in raw text. Remove the references portion.\n{text}"
 
@@ -56,17 +63,24 @@ def create_notes(file_path, file_type):
 
     return completion.choices[0].message.content
 
-def create_quiz(file_path, file_type):
-    if file_type == "PDF":
+def create_quiz(file_path):
+    root, file_ext = os.path.splitext(file_path)
+    file_ext = file_ext[1:]
+
+    if file_ext == "pdf":
         text = extract_text_from_pdf(file_path)
-    elif file_type == "DOCX":
+    elif file_ext == "docx":
         text = extract_text_from_docx(file_path)
-    elif file_type in ["PNG", "JPEG"]:
+    elif file_ext in ["png", "jpeg", "jpg"]:
         text = extract_from_image(file_path)
-    elif file_type in ["MP3", "WAV"]:
+    elif file_ext in ["mp3", "wav"]:
         text = extract_from_audio(file_path)
+    elif file_ext == "txt":
+        with open(file_path, "r") as f:
+            text = f.read()
+            f.close()
     else:
-        return {"error": "Unsupported file type"}
+        return file_ext, "Unsupported file type"
 
     prompt = f"""
 Generate a multiple choice quiz.
@@ -93,6 +107,8 @@ JSON format:
 Text:
 {text}
 """
+    
+# add hint/correct part
 
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -118,9 +134,10 @@ def gennote():
     file_type = request.form.get("doctype", "PDF").upper()  # Default to PDF
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    print(file_path)
     file.save(file_path)  # Save file to the server
 
-    notes = create_notes(file_path, file_type)
+    notes = create_notes(file_path)
     os.remove(file_path)  # Clean up uploaded file after processing
 
     return jsonify({"output": notes})
@@ -134,7 +151,7 @@ def genquiz():
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(file_path)
 
-    quiz = create_quiz(file_path, file_type)
+    quiz = create_quiz(file_path)
     os.remove(file_path)
 
     return jsonify(quiz)

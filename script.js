@@ -1,32 +1,11 @@
 let currentType;
-let dropdown = document.getElementById("type-select");
 let switchOn = false;
 let question;
 let quizData = [];
 
-document.getElementById("file").addEventListener("change", function(event) {
-    const file = event.target.files[0]; // Get the first selected file
-
-    if (file) {
-        console.log("Selected file:", file.name);
-        
-        // Read the file (if it's a text file, for example)
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            console.log("File content:", e.target.result);
-        };
-        reader.readAsText(file); // Use `readAsDataURL(file)` for images
-    }
-});
-
 async function quiz() {
     const fileInput = document.getElementById("file");
     const outputDiv = document.querySelector(".output");
-
-    if (!fileInput.files.length) {
-        outputDiv.innerHTML = "Please select a file.";
-        return;
-    }
 
     outputDiv.innerHTML = "Generating quiz...";
 
@@ -85,45 +64,37 @@ async function generate() {
     const fileInput = document.getElementById("file");
     const outputDiv = document.querySelector(".output");
 
-    if (currentType == "none") {
-        outputDiv.innerHTML = `You didn't pick a filetype.`;
-        return; 
+    if (!fileInput.files.length) {
+        outputDiv.innerHTML = `Please select a file first.`;
+        return;
     }
 
-    else {
-        if (!fileInput.files.length) {
-            outputDiv.innerHTML = `Please select a file first.`;
-            return;
-        }
+    outputDiv.innerHTML = `Summarizing notes...`;
 
-        outputDiv.innerHTML = `Summarizing notes...`;
+    const file = fileInput.files[0]; 
+    const formData = new FormData();
+    formData.append("doctype", currentType);
+    formData.append("file", file);
 
-        const file = fileInput.files[0]; 
-        const formData = new FormData();
-        formData.append("doctype", currentType);
-        formData.append("file", file);
-
-        try {
-            const response = await fetch("http://127.0.0.1:5000/notegen", {
-                method: "POST",
-                body: formData
-            });
-            
-            const data = await response.json();
-            outputDiv.innerHTML = data.output;
-        } catch (error) {
-            outputDiv.textContent = "Error processing the file.";
-            console.error("Fetch error:", error);
-        }
-
-        console.log("Notes generated.")
+    try {
+        const response = await fetch("http://127.0.0.1:5000/notegen", {
+            method: "POST",
+            body: formData
+        });
+        
+        const data = await response.json();
+        outputDiv.innerHTML = data.output;
+    } catch (error) {
+        outputDiv.textContent = "Error processing the file.";
+        console.error("Fetch error:", error);
     }
+
+    console.log("Notes generated.")
 }
 
 
 
 async function start() {
-    currentType = dropdown.value;
     const switchSelector = document.querySelector(".toggle");
 
     if (switchSelector.checked) {
