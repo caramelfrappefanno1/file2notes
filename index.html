@@ -2,27 +2,11 @@
     <head>
         <title></title>
         <link href="style.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
 
     <body>
         <div class="content">
-            <!-- <div>
-                <label>Select document type:</label>
-                <select name="type-select" id="type-select">Select
-                    <option value="none">--Select--</option>
-                    <option value="PDF">PDF</option>
-                    <option value="DOCX">DOCX</option>
-                    <option value="PNG">PNG</option>
-                    <option value="JPEG">JPEG</option>
-                    <option value="MP3">MP3</option>
-                </select>
-            </div> -->
-
-            <!-- <div class="submit-pnl">
-                <span class="button-hover">Supports: pdf, docx, png, jpeg</span>
-                <button id="type" onclick="docswitch()">Submit</button>
-            </div> -->
-
             <div>
                 <label for="file">Select a file:</label>
                 <input type="file" id="file" name="file"> 
@@ -40,6 +24,14 @@
             <hr>
 
             <div class="output"></div>
+
+            <div class = "stars">
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+            </div>
         </div>
 
         <script src="script.js"></script>

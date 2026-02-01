@@ -24,9 +24,6 @@ def get_key():
     f.close()
     return key
 
-print(get_key())
-
-
 # openai setup #
 client = openai.OpenAI(api_key=f"{get_key()}")
 
@@ -121,7 +118,7 @@ Text:
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
-        print("❌ Invalid JSON from model:\n", raw)
+        print("Invalid JSON from model:\n", raw)
         return {"error": "Quiz generation failed"}
 
 # main flask stuff

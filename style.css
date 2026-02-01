@@ -225,11 +225,10 @@ input:checked + .slider:before {
   margin-right: 8px;
 }
 
-.select-hover {
-  visibility: hidden;
+.stars {
+  color: white;
 }
 
-.select-file:hover .hover-text {
-  visibility: visible;
-  opacity: 1;
+.stars:hover {
+  cursor: pointer;
 }
