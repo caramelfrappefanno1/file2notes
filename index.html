@@ -1,47 +1,47 @@
 <!DOCTYPE html>
-    <head>
-        <title></title>
-        <link href="style.css" rel="stylesheet" type="text/css" />
-    </head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Study Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
 
-    <body>
-        <div class="content">
-            <!-- <div>
-                <label>Select document type:</label>
-                <select name="type-select" id="type-select">Select
-                    <option value="none">--Select--</option>
-                    <option value="PDF">PDF</option>
-                    <option value="DOCX">DOCX</option>
-                    <option value="PNG">PNG</option>
-                    <option value="JPEG">JPEG</option>
-                    <option value="MP3">MP3</option>
-                </select>
-            </div> -->
+<body>
+  <div class="app">
 
-            <!-- <div class="submit-pnl">
-                <span class="button-hover">Supports: pdf, docx, png, jpeg</span>
-                <button id="type" onclick="docswitch()">Submit</button>
-            </div> -->
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>History</h2>
+      <ul id="history"></ul>
+    </aside>
 
-            <div>
-                <label for="file">Select a file:</label>
-                <input type="file" id="file" name="file"> 
-            </div>
+    <!-- Workspace -->
+    <main class="workspace">
 
-            <label class="switch" aria-checked="false">
-                <input type="checkbox" class = "toggle">
-                <span class="slider"></span>
-            </label>
+      <!-- Output Display -->
+      <div class="display output" id="display">
+        Your generated content will appear here.
+      </div>
 
-            <div>
-                <button onclick="start()">START</button>
-            </div>
+      <!-- Input Area -->
+      <div class="input-box">
+        <textarea id="textInput" placeholder="Paste text here or upload a file below..."></textarea>
 
-            <hr>
+        <input type="file" id="file" />
 
-            <div class="output"></div>
+        <div class="controls">
+          <label class="switch">
+            <input type="checkbox" class="toggle">
+            <span class="slider">Quiz</span>
+          </label>
+
+          <button onclick="start()">Generate</button>
         </div>
+      </div>
 
-        <script src="script.js"></script>
-    </body>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>
