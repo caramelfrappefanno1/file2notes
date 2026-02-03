@@ -1,109 +1,54 @@
-let currentType;
-let switchOn = false;
-let question;
-let quizData = [];
+const display = document.getElementById("display");
+const historyList = document.getElementById("history");
 
-async function quiz() {
-    const fileInput = document.getElementById("file");
-    const outputDiv = document.querySelector(".output");
+function saveToHistory(content) {
+  const li = document.createElement("li");
+  li.textContent = content.replace(/<[^>]+>/g, "").slice(0, 40) + "...";
+  li.onclick = () => display.innerHTML = content;
+  historyList.prepend(li);
+}
 
-    outputDiv.innerHTML = "Generating quiz...";
-
-    const formData = new FormData();
-    formData.append("doctype", currentType);
-    formData.append("file", fileInput.files[0]);
-
-    const response = await fetch("http://127.0.0.1:5000/quizgen", {
-        method: "POST",
-        body: formData
+function renderQuiz(quiz) {
+  let html = "";
+  quiz.questions.forEach((q, i) => {
+    html += `<div><strong>${i + 1}. ${q.question}</strong>`;
+    q.choices.forEach((c, j) => {
+      html += `<div>
+        <label>
+          <input type="radio" name="q${i}" value="${j}"> ${c}
+        </label>
+      </div>`;
     });
-
-    const data = await response.json();
-    quizData = data;
-
-    renderQuiz();
+    html += `</div><hr>`;
+  });
+  return html;
 }
-
-function renderQuiz() {
-    const outputDiv = document.querySelector(".output");
-    outputDiv.innerHTML = "";
-
-    quizData.questions.forEach((q, i) => {
-        let html = `<div class="question">
-            <p><strong>${i + 1}. ${q.question}</strong></p>`;
-
-        q.choices.forEach((choice, j) => {
-            html += `
-                <label>
-                    <input type="radio" name="q${i}" value="${j}">
-                    ${choice}
-                </label><br>`;
-        });
-
-        html += `</div><hr>`;
-        outputDiv.innerHTML += html;
-    });
-
-    outputDiv.innerHTML += `<button onclick="submitQuiz()">Submit Quiz</button>`;
-}
-
-function submitQuiz() {
-    let score = 0;
-
-    quizData.questions.forEach((q, i) => {
-        const selected = document.querySelector(`input[name="q${i}"]:checked`);
-        if (selected && Number(selected.value) === q.answer) {
-            score++;
-        }
-    });
-
-    alert(`You scored ${score} / ${quizData.questions.length}`);
-}
-
-async function generate() {
-    const fileInput = document.getElementById("file");
-    const outputDiv = document.querySelector(".output");
-
-    if (!fileInput.files.length) {
-        outputDiv.innerHTML = `Please select a file first.`;
-        return;
-    }
-
-    outputDiv.innerHTML = `Summarizing notes...`;
-
-    const file = fileInput.files[0]; 
-    const formData = new FormData();
-    formData.append("doctype", currentType);
-    formData.append("file", file);
-
-    try {
-        const response = await fetch("http://127.0.0.1:5000/notegen", {
-            method: "POST",
-            body: formData
-        });
-        
-        const data = await response.json();
-        outputDiv.innerHTML = data.output;
-    } catch (error) {
-        outputDiv.textContent = "Error processing the file.";
-        console.error("Fetch error:", error);
-    }
-
-    console.log("Notes generated.")
-}
-
-
 
 async function start() {
-    const switchSelector = document.querySelector(".toggle");
+  const text = document.getElementById("textInput").value.trim();
+  const fileInput = document.getElementById("file");
+  const isQuiz = document.querySelector(".toggle").checked;
 
-    if (switchSelector.checked) {
-        console.log("Quiz Mode on.");
-        await quiz();
-        return;
-    } else {
-        console.log("Note generate on.");
-        await generate();
-        return;
-    }
+  if (!text && !fileInput.files.length) {
+    display.innerHTML = "Paste text or upload a file.";
+    return;
+  }
+
+  const formData = new FormData();
+  if (text) formData.append("text", text);
+  if (fileInput.files.length) formData.append("file", fileInput.files[0]);
+
+  display.innerHTML = "Generating...";
+
+  const endpoint = isQuiz ? "/quizgen" : "/notegen";
+  const res = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+  const output = isQuiz ? renderQuiz(data) : data.output;
+
+  display.innerHTML = output;
+  saveToHistory(output);
 }
