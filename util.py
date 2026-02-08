@@ -55,7 +55,6 @@ def extract_from_image(client, img_path):
 
     return completion.choices[0].message.content.strip()
 
-
 def extract_from_audio(audio_path):
     """Extract text from an audio file using speech recognition."""
     recognizer = sr.Recognizer()

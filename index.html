@@ -1,39 +1,295 @@
 <!DOCTYPE html>
-    <head>
-        <title></title>
-        <link href="style.css" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    </head>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Note & Quiz Generator</title>
+<style>
+* { box-sizing: border-box; }
 
-    <body>
-        <div class="content">
-            <div>
-                <label for="file">Select a file:</label>
-                <input type="file" id="file" name="file"> 
-            </div>
+:root {
+  --bg: #0b0f14;
+  --surface: #0f1720;
+  --elev: #131c26;
+  --text: #e9eef5;
+  --muted: #9fb0c3;
+  --brand: #6ea8fe;
+  --accent: #22d3ee;
+  --radius: 14px;
+}
 
-            <label class="switch" aria-checked="false">
-                <input type="checkbox" class = "toggle">
-                <span class="slider"></span>
-            </label>
+html, body { height: 100%; margin: 0; }
 
-            <div>
-                <button onclick="start()">START</button>
-            </div>
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.4 system-ui, sans-serif;
+}
 
-            <hr>
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: 100vh;
+}
 
-            <div class="output"></div>
+/* Sidebar */
+.sidebar {
+  background: #0d141d;
+  border-right: 1px solid rgba(255,255,255,.08);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
 
-            <div class = "stars">
-                <span class="fa fa-star"></span>
-                <span class="fa fa-star"></span>
-                <span class="fa fa-star"></span>
-                <span class="fa fa-star"></span>
-                <span class="fa fa-star"></span>
-            </div>
-        </div>
+.sidebar h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
 
-        <script src="script.js"></script>
-    </body>
+.history {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.history-item {
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: rgba(255,255,255,.03);
+  cursor: pointer;
+}
+
+.history-item:hover {
+  background: rgba(255,255,255,.07);
+}
+
+/* Main */
+.main {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.center {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.output {
+  min-height: 240px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255,255,255,.02);
+  font-family: Consolas, monospace;
+}
+
+.output:empty::before {
+  content: "Generated content will appear here.";
+  color: var(--muted);
+}
+
+.footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+input[type=file] {
+  flex: 1;
+  border: 1px dashed rgba(255,255,255,.2);
+  border-radius: 10px;
+  padding: 10px;
+  background: transparent;
+  color: var(--muted);
+}
+
+button {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--brand);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #1a2532;
+  color: var(--text);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- LEFT: history -->
+  <aside class="sidebar">
+    <h3>Previous Outputs</h3>
+    <div class="history" id="history"></div>
+  </aside>
+
+  <!-- RIGHT: main -->
+  <section class="main">
+    <div class="header">
+      <h1>Note / Quiz Generator</h1>
+    </div>
+
+    <div class="center">
+      <div class="output" id="output"></div>
+    </div>
+
+    <div class="footer">
+  <!-- input mode -->
+  <input type="file" id="fileInput" />
+  <input type="text" id="linkInput" class="link-input hidden"
+         placeholder="Paste a link here…" />
+
+  <!-- switches -->
+  <div class="toggle">
+    <input type="checkbox" id="inputModeToggle" />
+    Link
+  </div>
+
+  <div class="toggle">
+    <input type="checkbox" id="quizToggle" />
+    Quiz
+  </div>
+
+  <button class="secondary" onclick="start()">Start</button>
+</div>
+  </section>
+</div>
+
+<script>
+let quizData = [];
+
+function saveHistory(content) {
+  const list = JSON.parse(localStorage.getItem("history") || "[]");
+  list.unshift(content);
+  localStorage.setItem("history", JSON.stringify(list.slice(0,20)));
+  renderHistory();
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem("history") || "[]");
+  const container = document.getElementById("history");
+  container.innerHTML = "";
+  history.forEach(h => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.textContent = h.replace(/<[^>]+>/g,'').substring(0,60) + "...";
+    div.onclick = () => document.getElementById("output").innerHTML = h;
+    container.appendChild(div);
+  });
+}
+
+function renderQuiz() {
+  const out = document.getElementById("output");
+  out.innerHTML = "";
+
+  quizData.questions.forEach((q, i) => {
+    let html = `<div class="question">
+      <p><strong>${i+1}. ${q.question}</strong></p>`;
+
+    q.choices.forEach((c, j) => {
+      html += `
+        <label>
+          <input type="radio" name="q${i}" value="${j}">
+          ${c}
+        </label><br>`;
+    });
+
+    html += `</div><hr>`;
+    out.innerHTML += html;
+  });
+
+  out.innerHTML += `<button onclick="submitQuiz()">Submit Quiz</button>`;
+}
+
+function submitQuiz() {
+  let score = 0;
+
+  quizData.questions.forEach((q, i) => {
+    const result = `Score: ${score}/${quizData.questions.length}`;
+    if (sel && Number(sel.value) === q.answer) score++;
+  });
+
+  const result = `Score: ${score}/${quizData.questions.length}`;
+  alert(result);
+  saveHistory(document.getElementById("output").innerHTML);
+}
+
+renderHistory();
+
+async function start() {
+  const isQuiz = document.getElementById("quizToggle").checked;
+  const useLink = document.getElementById("inputModeToggle").checked;
+  const out = document.getElementById("output");
+
+  out.innerHTML = isQuiz ? "Generating quiz..." : "Generating notes...";
+
+  const formData = new FormData();
+
+  if (useLink) {
+    const link = document.getElementById("linkInput").value.trim();
+    if (!link) {
+      alert("Please enter a link.");
+      return;
+    }
+    formData.append("link", link);
+  } else {
+    const fileInput = document.getElementById("fileInput");
+    if (!fileInput || fileInput.files.length === 0) {
+      alert("Please upload a file.");
+      return;
+    }
+    formData.append("file", fileInput.files[0]);
+  }
+
+  const url = isQuiz
+    ? "http://127.0.0.1:5000/quizgen"
+    : "http://127.0.0.1:5000/notegen";
+
+  try {
+    const res = await fetch(url, { method: "POST", body: formData });
+    const data = await res.json();
+
+    if (isQuiz) {
+      quizData = data;
+      renderQuiz();
+    } else {
+      out.innerHTML = data.output;
+      saveHistory(data.output);
+    }
+  } catch (err) {
+    console.error(err);
+    out.innerHTML = "Error generating content.";
+  }
+}
+</script>
+</body>
 </html>

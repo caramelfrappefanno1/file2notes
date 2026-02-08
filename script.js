@@ -4,7 +4,10 @@ let question;
 let quizData = [];
 
 async function quiz() {
-    const fileInput = document.getElementById("file");
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput && fileInput.files.length > 0
+    ? fileInput.files[0]
+    : null;
     const outputDiv = document.querySelector(".output");
 
     outputDiv.innerHTML = "Generating quiz...";
@@ -71,7 +74,9 @@ async function generate() {
 
     outputDiv.innerHTML = `Summarizing notes...`;
 
-    const file = fileInput.files[0]; 
+    const file = fileInput && fileInput.files.length > 0
+    ? fileInput.files[0]
+    : null;
     const formData = new FormData();
     formData.append("doctype", currentType);
     formData.append("file", file);
@@ -92,18 +97,64 @@ async function generate() {
     console.log("Notes generated.")
 }
 
+const inputModeToggle = document.getElementById("inputModeToggle");
+const fileInput = document.getElementById("fileInput");
+const linkInput = document.getElementById("linkInput");
 
+inputModeToggle.addEventListener("change", () => {
+  if (inputModeToggle.checked) {
+    fileInput.classList.add("hidden");
+    linkInput.classList.remove("hidden");
+  } else {
+    linkInput.classList.add("hidden");
+    fileInput.classList.remove("hidden");
+  }
+});
 
-async function start() {
-    const switchSelector = document.querySelector(".toggle");
+// async function start() {
+//   const isQuiz = document.getElementById("quizToggle").checked;
+//   const useLink = document.getElementById("inputModeToggle").checked;
+//   const out = document.getElementById("output");
 
-    if (switchSelector.checked) {
-        console.log("Quiz Mode on.");
-        await quiz();
-        return;
-    } else {
-        console.log("Note generate on.");
-        await generate();
-        return;
-    }
-}
+//   out.innerHTML = isQuiz ? "Generating quiz..." : "Generating notes...";
+
+//   const formData = new FormData();
+
+//   if (useLink) {
+//     const link = document.getElementById("linkInput").value.trim();
+//     if (!link) {
+//       alert("Please enter a link.");
+//       return;
+//     }
+//     formData.append("link", link);
+//   } else {
+//     const fileInput = document.getElementById("fileInput");
+//     if (!fileInput || fileInput.files.length === 0) {
+//       alert("Please upload a file.");
+//       return;
+//     }
+//     formData.append("file", fileInput.files[0]);
+//   }
+
+//   const url = isQuiz
+//     ? "http://127.0.0.1:5000/quizgen"
+//     : "http://127.0.0.1:5000/notegen";
+
+//   try {
+//     const res = await fetch(url, { method: "POST", body: formData });
+//     const data = await res.json();
+
+//     if (isQuiz) {
+//       quizData = data;
+//       renderQuiz();
+//     } else {
+//       out.innerHTML = data.output;
+//       saveHistory(data.output);
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     out.innerHTML = "Error generating content.";
+//   }
+// }
+
+document.getElementById("startBtn").addEventListener("click", start());
