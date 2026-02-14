@@ -231,4 +231,20 @@ input:checked + .slider:before {
 
 .stars:hover {
   cursor: pointer;
+
+}
+
+.correct {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.incorrect {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.explanation {
+  color: #9fb0c3;
+  font-style: italic;
 }
