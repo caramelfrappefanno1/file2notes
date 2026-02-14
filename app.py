@@ -119,9 +119,10 @@ Rules:
 - Exactly 10 questions
 - 4 choices each
 - One correct answer
+- Include a short explanation for why the correct answer is correct
 - Output ONLY valid JSON
 - No markdown
-- No explanations
+- No explanations outside JSON
 
 JSON format:
 {{
@@ -129,7 +130,8 @@ JSON format:
     {{
       "question": "text",
       "choices": ["A", "B", "C", "D"],
-      "answer": 0
+      "answer": 0,
+      "explanation": "Why this answer is correct"
     }}
   ]
 }}
@@ -251,4 +253,5 @@ def resolveanswer():
     return jsonify({"output": data})
 
 if __name__ == "__main__":
+
     app.run(host="0.0.0.0", port=5000, debug=True)
