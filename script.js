@@ -51,16 +51,42 @@ function renderQuiz() {
 }
 
 function submitQuiz() {
-    let score = 0;
+  let score = 0;
+  const out = document.getElementById("output");
 
-    quizData.questions.forEach((q, i) => {
-        const selected = document.querySelector(`input[name="q${i}"]:checked`);
-        if (selected && Number(selected.value) === q.answer) {
-            score++;
-        }
-    });
+  quizData.questions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    const questionDiv = document.querySelectorAll(".question")[i];
 
-    alert(`You scored ${score} / ${quizData.questions.length}`);
+    if (!selected) {
+      questionDiv.innerHTML += `<p style="color:orange;"><strong>No answer selected</strong></p>`;
+      return;
+    }
+
+    const selectedIndex = Number(selected.value);
+    const correctIndex = q.answer;
+
+    if (selectedIndex === correctIndex) {
+      score++;
+      questionDiv.innerHTML += `
+        <p style="color:limegreen;"><strong>✔ Correct</strong></p>
+        <p><em>${q.explanation}</em></p>
+      `;
+    } else {
+      questionDiv.innerHTML += `
+        <p style="color:red;"><strong>✘ Incorrect</strong></p>
+        <p><strong>Correct Answer:</strong> ${q.choices[correctIndex]}</p>
+        <p><em>${q.explanation}</em></p>
+      `;
+    }
+
+    // Disable radios after submit
+    const radios = document.querySelectorAll(`input[name="q${i}"]`);
+    radios.forEach(r => r.disabled = true);
+  });
+
+  alert(`Final Score: ${score} / ${quizData.questions.length}`);
+  saveHistory(out.innerHTML);
 }
 
 async function generate() {
@@ -156,5 +182,6 @@ inputModeToggle.addEventListener("change", () => {
 //     out.innerHTML = "Error generating content.";
 //   }
 // }
+
 
 document.getElementById("startBtn").addEventListener("click", start());
