@@ -1,187 +1,112 @@
-let currentType;
-let switchOn = false;
-let question;
-let quizData = [];
+let currentMode = "file";
 
-async function quiz() {
-    const fileInput = document.getElementById("fileInput");
-    const file = fileInput && fileInput.files.length > 0
-    ? fileInput.files[0]
-    : null;
-    const outputDiv = document.querySelector(".output");
+function setMode(mode, btn) {
+    currentMode = mode;
 
-    outputDiv.innerHTML = "Generating quiz...";
+    document.getElementById("fileMode").style.display =
+        mode === "file" ? "block" : "none";
 
-    const formData = new FormData();
-    formData.append("doctype", currentType);
-    formData.append("file", fileInput.files[0]);
+    document.getElementById("linkMode").style.display =
+        mode === "link" ? "block" : "none";
 
-    const response = await fetch("http://127.0.0.1:5000/quizgen", {
+    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+}
+
+async function generateQuiz() {
+    let textContent = "";
+
+    if (currentMode === "file") {
+        const fileInput = document.getElementById("fileInput");
+        if (!fileInput.files.length) {
+            alert("Please select a file.");
+            return;
+        }
+        textContent = await fileInput.files[0].text();
+    }
+
+    if (currentMode === "link") {
+        const link = document.getElementById("linkInput").value;
+        if (!link) {
+            alert("Please enter a URL.");
+            return;
+        }
+
+        try {
+            const response = await fetch(link);
+            textContent = await response.text();
+        } catch {
+            alert("Failed to fetch link.");
+            return;
+        }
+    }
+
+    const quizData = await sendToAI(textContent);
+    displayQuiz(quizData);
+}
+
+async function sendToAI(text) {
+    const response = await fetch("/generate-quiz", {
         method: "POST",
-        body: formData
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
     });
 
-    const data = await response.json();
-    quizData = data;
-
-    renderQuiz();
+    return await response.json();
 }
 
-function renderQuiz() {
-    const outputDiv = document.querySelector(".output");
-    outputDiv.innerHTML = "";
+function displayQuiz(data) {
+    const container = document.getElementById("quizContainer");
+    container.innerHTML = "";
 
-    quizData.questions.forEach((q, i) => {
-        let html = `<div class="question">
-            <p><strong>${i + 1}. ${q.question}</strong></p>`;
+    data.questions.forEach((q, index) => {
+        const div = document.createElement("div");
+        div.classList.add("question");
 
-        q.choices.forEach((choice, j) => {
-            html += `
+        div.innerHTML = `
+            <p><strong>Q${index + 1}:</strong> ${q.question}</p>
+            ${q.options.map((opt, i) => `
                 <label>
-                    <input type="radio" name="q${i}" value="${j}">
-                    ${choice}
-                </label><br>`;
-        });
+                    <input type="radio" name="q${index}" value="${i}">
+                    ${opt}
+                </label><br>
+            `).join("")}
+        `;
 
-        html += `</div><hr>`;
-        outputDiv.innerHTML += html;
+        container.appendChild(div);
     });
 
-    outputDiv.innerHTML += `<button onclick="submitQuiz()">Submit Quiz</button>`;
+    const submitBtn = document.createElement("button");
+    submitBtn.className = "generate-btn";
+    submitBtn.textContent = "Submit Quiz";
+    submitBtn.onclick = () => checkAnswers(data);
+    container.appendChild(submitBtn);
 }
 
-function submitQuiz() {
-  let score = 0;
-  const out = document.getElementById("output");
+function checkAnswers(data) {
+    data.questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        const questionDiv = document.querySelectorAll(".question")[index];
 
-  quizData.questions.forEach((q, i) => {
-    const selected = document.querySelector(`input[name="q${i}"]:checked`);
-    const questionDiv = document.querySelectorAll(".question")[i];
+        if (!selected) {
+            questionDiv.innerHTML += `<p class="incorrect">No answer selected</p>`;
+            return;
+        }
 
-    if (!selected) {
-      questionDiv.innerHTML += `<p style="color:orange;"><strong>No answer selected</strong></p>`;
-      return;
-    }
+        const selectedIndex = parseInt(selected.value);
 
-    const selectedIndex = Number(selected.value);
-    const correctIndex = q.answer;
-
-    if (selectedIndex === correctIndex) {
-      score++;
-      questionDiv.innerHTML += `
-        <p style="color:limegreen;"><strong>✔ Correct</strong></p>
-        <p><em>${q.explanation}</em></p>
-      `;
-    } else {
-      questionDiv.innerHTML += `
-        <p style="color:red;"><strong>✘ Incorrect</strong></p>
-        <p><strong>Correct Answer:</strong> ${q.choices[correctIndex]}</p>
-        <p><em>${q.explanation}</em></p>
-      `;
-    }
-
-    // Disable radios after submit
-    const radios = document.querySelectorAll(`input[name="q${i}"]`);
-    radios.forEach(r => r.disabled = true);
-  });
-
-  alert(`Final Score: ${score} / ${quizData.questions.length}`);
-  saveHistory(out.innerHTML);
+        if (selectedIndex === q.correctIndex) {
+            questionDiv.innerHTML += `
+                <p class="correct">Correct!</p>
+                <div class="explanation">${q.explanation}</div>
+            `;
+        } else {
+            questionDiv.innerHTML += `
+                <p class="incorrect">
+                    Incorrect. Correct answer: ${q.options[q.correctIndex]}
+                </p>
+                <div class="explanation">${q.explanation}</div>
+            `;
+        }
+    });
 }
-
-async function generate() {
-    const fileInput = document.getElementById("file");
-    const outputDiv = document.querySelector(".output");
-
-    if (!fileInput.files.length) {
-        outputDiv.innerHTML = `Please select a file first.`;
-        return;
-    }
-
-    outputDiv.innerHTML = `Summarizing notes...`;
-
-    const file = fileInput && fileInput.files.length > 0
-    ? fileInput.files[0]
-    : null;
-    const formData = new FormData();
-    formData.append("doctype", currentType);
-    formData.append("file", file);
-
-    try {
-        const response = await fetch("http://127.0.0.1:5000/notegen", {
-            method: "POST",
-            body: formData
-        });
-        
-        const data = await response.json();
-        outputDiv.innerHTML = data.output;
-    } catch (error) {
-        outputDiv.textContent = "Error processing the file.";
-        console.error("Fetch error:", error);
-    }
-
-    console.log("Notes generated.")
-}
-
-const inputModeToggle = document.getElementById("inputModeToggle");
-const fileInput = document.getElementById("fileInput");
-const linkInput = document.getElementById("linkInput");
-
-inputModeToggle.addEventListener("change", () => {
-  if (inputModeToggle.checked) {
-    fileInput.classList.add("hidden");
-    linkInput.classList.remove("hidden");
-  } else {
-    linkInput.classList.add("hidden");
-    fileInput.classList.remove("hidden");
-  }
-});
-
-// async function start() {
-//   const isQuiz = document.getElementById("quizToggle").checked;
-//   const useLink = document.getElementById("inputModeToggle").checked;
-//   const out = document.getElementById("output");
-
-//   out.innerHTML = isQuiz ? "Generating quiz..." : "Generating notes...";
-
-//   const formData = new FormData();
-
-//   if (useLink) {
-//     const link = document.getElementById("linkInput").value.trim();
-//     if (!link) {
-//       alert("Please enter a link.");
-//       return;
-//     }
-//     formData.append("link", link);
-//   } else {
-//     const fileInput = document.getElementById("fileInput");
-//     if (!fileInput || fileInput.files.length === 0) {
-//       alert("Please upload a file.");
-//       return;
-//     }
-//     formData.append("file", fileInput.files[0]);
-//   }
-
-//   const url = isQuiz
-//     ? "http://127.0.0.1:5000/quizgen"
-//     : "http://127.0.0.1:5000/notegen";
-
-//   try {
-//     const res = await fetch(url, { method: "POST", body: formData });
-//     const data = await res.json();
-
-//     if (isQuiz) {
-//       quizData = data;
-//       renderQuiz();
-//     } else {
-//       out.innerHTML = data.output;
-//       saveHistory(data.output);
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     out.innerHTML = "Error generating content.";
-//   }
-// }
-
-
-document.getElementById("startBtn").addEventListener("click", start());

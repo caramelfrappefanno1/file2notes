@@ -49,7 +49,7 @@ def create_notes(upload, mode="upload"):
                 text = f.read()
                 f.close()
 
-            prompt = f"Generate notes based on the following text using the bullet point note-taking method. Notes should be short but comprehensive. Format in HTML in raw text. Remove the references portion.\n{text}"
+            prompt = f"Generate notes based on the following text using the bullet point note-taking method. Notes should be short but comprehensive. Format in HTML in raw text and give only the raw text with no preamble.\n{text}"
 
             completion = client.chat.completions.create(
                 max_tokens=4096,
@@ -58,7 +58,7 @@ def create_notes(upload, mode="upload"):
                 messages=[{"role": "user", "content": prompt}]
             )
 
-            return completion.choices[0].message.content
+            return extract_code_block(completion.choices[0].message.content)
         else:
             return file_ext, "Unsupported file type"
     
@@ -119,10 +119,9 @@ Rules:
 - Exactly 10 questions
 - 4 choices each
 - One correct answer
-- Include a short explanation for why the correct answer is correct
 - Output ONLY valid JSON
 - No markdown
-- No explanations outside JSON
+- Short, single sentence explanation
 
 JSON format:
 {{
@@ -131,7 +130,7 @@ JSON format:
       "question": "text",
       "choices": ["A", "B", "C", "D"],
       "answer": 0,
-      "explanation": "Why this answer is correct"
+      "explanation": "text"
     }}
   ]
 }}
@@ -253,5 +252,4 @@ def resolveanswer():
     return jsonify({"output": data})
 
 if __name__ == "__main__":
-
     app.run(host="0.0.0.0", port=5000, debug=True)

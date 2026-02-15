@@ -7,6 +7,11 @@ from pydub import AudioSegment
 from PIL import Image
 import io
 import fitz
+import re
+
+def extract_code_block(text):
+    match = re.search(r"```(?:\w+)?\s*([\s\S]*?)```", text)
+    return match.group(1).strip() if match else None
 
 def extract_img_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
