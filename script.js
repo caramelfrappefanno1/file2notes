@@ -1,54 +1,235 @@
-const display = document.getElementById("display");
-const historyList = document.getElementById("history");
+let currentType;
+let switchOn = false;
+let question;
+let quizData = [];
 
-function saveToHistory(content) {
-  const li = document.createElement("li");
-  li.textContent = content.replace(/<[^>]+>/g, "").slice(0, 40) + "...";
-  li.onclick = () => display.innerHTML = content;
-  historyList.prepend(li);
-}
+async function quiz() {
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput && fileInput.files.length > 0
+    ? fileInput.files[0]
+    : null;
+    const outputDiv = document.querySelector(".output");
 
-function renderQuiz(quiz) {
-  let html = "";
-  quiz.questions.forEach((q, i) => {
-    html += `<div><strong>${i + 1}. ${q.question}</strong>`;
-    q.choices.forEach((c, j) => {
-      html += `<div>
-        <label>
-          <input type="radio" name="q${i}" value="${j}"> ${c}
-        </label>
-      </div>`;
+    outputDiv.innerHTML = "Generating quiz...";
+
+    const formData = new FormData();
+    formData.append("doctype", currentType);
+    formData.append("file", fileInput.files[0]);
+
+    const response = await fetch("http://127.0.0.1:5000/quizgen", {
+        method: "POST",
+        body: formData
     });
-    html += `</div><hr>`;
-  });
-  return html;
+
+    const data = await response.json();
+    quizData = data;
+
+    renderQuiz();
 }
 
-async function start() {
-  const text = document.getElementById("textInput").value.trim();
-  const fileInput = document.getElementById("file");
-  const isQuiz = document.querySelector(".toggle").checked;
+function renderQuiz() {
+    const outputDiv = document.querySelector(".output");
+    outputDiv.innerHTML = "";
 
-  if (!text && !fileInput.files.length) {
-    display.innerHTML = "Paste text or upload a file.";
-    return;
+    quizData.questions.forEach((q, i) => {
+        let html = `<div class="question">
+            <p><strong>${i + 1}. ${q.question}</strong></p>`;
+
+        q.choices.forEach((choice, j) => {
+            html += `
+                <label>
+                    <input type="radio" name="q${i}" value="${j}">
+                    ${choice}
+                </label><br>`;
+        });
+
+        html += `</div><hr>`;
+        outputDiv.innerHTML += html;
+    });
+
+    outputDiv.innerHTML += `<button onclick="submitQuiz()">Submit Quiz</button>`;
+}
+
+function submitQuiz() {
+  let score = 0;
+  const out = document.getElementById("output");
+  const weakTopics = [];
+
+  quizData.questions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    const questionDiv = document.querySelectorAll(".question")[i];
+
+    if (!selected) {
+      questionDiv.innerHTML += `<p class="incorrect">No answer selected</p>`;
+      weakTopics.push(q.question);
+      return;
+    }
+
+    const selectedIndex = Number(selected.value);
+    const correctIndex = q.answer;
+
+    if (selectedIndex === correctIndex) {
+      score++;
+      questionDiv.innerHTML += `
+        <p class="correct">✔ Correct</p>
+        <p class="explanation">${q.explanation}</p>
+      `;
+    } else {
+      weakTopics.push(q.question);
+
+      questionDiv.innerHTML += `
+        <p class="incorrect">✘ Incorrect</p>
+        <p><strong>Correct Answer:</strong> ${q.choices[correctIndex]}</p>
+        <p class="explanation">${q.explanation}</p>
+      `;
+    }
+
+    // Disable radios
+    document.querySelectorAll(`input[name="q${i}"]`)
+      .forEach(r => r.disabled = true);
+  });
+
+  // Score display
+  const resultHTML = `
+    <div class="quiz-result">
+      <h3>Final Score: ${score} / ${quizData.questions.length}</h3>
+    </div>
+  `;
+
+  out.innerHTML += resultHTML;
+
+  // If there are weak areas, show retry button
+  if (weakTopics.length > 0) {
+    out.innerHTML += `
+      <button onclick="retryWeakAreas()" class="retry-btn">
+        Work on Weak Areas
+      </button>
+    `;
   }
 
-  const formData = new FormData();
-  if (text) formData.append("text", text);
-  if (fileInput.files.length) formData.append("file", fileInput.files[0]);
+  saveHistory(out.innerHTML);
 
-  display.innerHTML = "Generating...";
-
-  const endpoint = isQuiz ? "/quizgen" : "/notegen";
-  const res = await fetch(`http://127.0.0.1:5000${endpoint}`, {
-    method: "POST",
-    body: formData
-  });
-
-  const data = await res.json();
-  const output = isQuiz ? renderQuiz(data) : data.output;
-
-  display.innerHTML = output;
-  saveToHistory(output);
+  // Store weak topics globally
+  window.weakTopics = weakTopics;
 }
+
+async function retryWeakAreas() {
+  if (!window.weakTopics || window.weakTopics.length === 0) return;
+
+  const out = document.getElementById("output");
+  out.innerHTML = "Generating focused quiz on weak areas...";
+
+  try {
+    const res = await fetch("http://127.0.0.1:5000/quizgen", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        weak: window.weakTopics.join("\n")
+      })
+    });
+
+    const data = await res.json();
+    quizData = data;
+    renderQuiz();
+  } catch (err) {
+    console.error(err);
+    out.innerHTML = "Error generating focused quiz.";
+  }
+}
+
+async function generate() {
+    const fileInput = document.getElementById("file");
+    const outputDiv = document.querySelector(".output");
+
+    if (!fileInput.files.length) {
+        outputDiv.innerHTML = `Please select a file first.`;
+        return;
+    }
+
+    outputDiv.innerHTML = `Summarizing notes...`;
+
+    const file = fileInput && fileInput.files.length > 0
+    ? fileInput.files[0]
+    : null;
+    const formData = new FormData();
+    formData.append("doctype", currentType);
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/notegen", {
+            method: "POST",
+            body: formData
+        });
+        
+        const data = await response.json();
+        outputDiv.innerHTML = data.output;
+    } catch (error) {
+        outputDiv.textContent = "Error processing the file.";
+        console.error("Fetch error:", error);
+    }
+
+    console.log("Notes generated.")
+}
+
+const inputModeToggle = document.getElementById("inputModeToggle");
+const fileInput = document.getElementById("fileInput");
+const linkInput = document.getElementById("linkInput");
+
+inputModeToggle.addEventListener("change", () => {
+  if (inputModeToggle.checked) {
+    fileInput.classList.add("hidden");
+    linkInput.classList.remove("hidden");
+  } else {
+    linkInput.classList.add("hidden");
+    fileInput.classList.remove("hidden");
+  }
+});
+
+// async function start() {
+//   const isQuiz = document.getElementById("quizToggle").checked;
+//   const useLink = document.getElementById("inputModeToggle").checked;
+//   const out = document.getElementById("output");
+
+//   out.innerHTML = isQuiz ? "Generating quiz..." : "Generating notes...";
+
+//   const formData = new FormData();
+
+//   if (useLink) {
+//     const link = document.getElementById("linkInput").value.trim();
+//     if (!link) {
+//       alert("Please enter a link.");
+//       return;
+//     }
+//     formData.append("link", link);
+//   } else {
+//     const fileInput = document.getElementById("fileInput");
+//     if (!fileInput || fileInput.files.length === 0) {
+//       alert("Please upload a file.");
+//       return;
+//     }
+//     formData.append("file", fileInput.files[0]);
+//   }
+
+//   const url = isQuiz
+//     ? "http://127.0.0.1:5000/quizgen"
+//     : "http://127.0.0.1:5000/notegen";
+
+//   try {
+//     const res = await fetch(url, { method: "POST", body: formData });
+//     const data = await res.json();
+
+//     if (isQuiz) {
+//       quizData = data;
+//       renderQuiz();
+//     } else {
+//       out.innerHTML = data.output;
+//       saveHistory(data.output);
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     out.innerHTML = "Error generating content.";
+//   }
+// }
+
+
+document.getElementById("startBtn").addEventListener("click", start());
