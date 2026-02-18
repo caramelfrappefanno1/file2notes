@@ -79,19 +79,23 @@ function displayQuiz(data) {
 }
 
 function checkAnswers(data) {
+    let correctCount = 0;
+    let weakText = [];
+
     data.questions.forEach((q, index) => {
         const selected = document.querySelector(`input[name="q${index}"]:checked`);
         const feedbackDiv = document.getElementById(`feedback-${index}`);
         
         if (!selected) {
             feedbackDiv.innerHTML = `<p class="incorrect">No answer selected</p>`;
+            weakText.push(q.question + " " + q.explanation);
             return;
         }
 
         const selectedIndex = parseInt(selected.value);
 
-        // Match keys with app.py: 'answer' and 'choices'
         if (selectedIndex === q.answer) {
+            correctCount++;
             feedbackDiv.innerHTML = `
                 <p class="correct">Correct!</p>
                 <div class="explanation">${q.explanation}</div>
@@ -101,6 +105,46 @@ function checkAnswers(data) {
                 <p class="incorrect">Incorrect. Correct answer: ${q.choices[q.answer]}</p>
                 <div class="explanation">${q.explanation}</div>
             `;
+            weakText.push(q.question + " " + q.explanation);
         }
     });
+
+    const scorePercent = Math.round((correctCount / data.questions.length) * 100);
+
+    const container = document.getElementById("quizContainer");
+
+    const resultDiv = document.createElement("div");
+    resultDiv.className = "question";
+    resultDiv.innerHTML = `
+        <h3>Your Score: ${correctCount} / ${data.questions.length} (${scorePercent}%)</h3>
+    `;
+    container.appendChild(resultDiv);
+
+    // Only show retest option if user got something wrong
+    if (weakText.length > 0) {
+        const promptDiv = document.createElement("div");
+        promptDiv.className = "question";
+        promptDiv.innerHTML = `
+            <p><strong>Would you like another test focused on your weak areas?</strong></p>
+            <button class="generate-btn" id="yesRetry">Yes</button>
+            <button class="mode-btn" id="noRetry">No</button>
+        `;
+        container.appendChild(promptDiv);
+
+        document.getElementById("yesRetry").onclick = () => {
+            generateWeakQuiz(weakText.join(" "));
+        };
+
+        document.getElementById("noRetry").onclick = () => {
+            promptDiv.innerHTML = "<p>Great job! Keep studying! 💪</p>";
+        };
+    }
+}
+
+async function generateWeakQuiz(weakContent) {
+    const container = document.getElementById("quizContainer");
+    container.innerHTML = "<p>Generating new quiz based on weak areas...</p>";
+
+    const quizData = await sendToAI(weakContent, "");
+    displayQuiz(quizData);
 }
