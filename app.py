@@ -59,8 +59,13 @@ def extract_text_from_url(url):
 # =========================
 def create_quiz_from_text(text):
 
+    # LIMIT TEXT SIZE
+    max_chars = 50000   # safe size (~12k tokens approx)
+    if len(text) > max_chars:
+        text = text[:max_chars]
+
     prompt = f"""
-Generate a multiple choice quiz.
+Generate a multiple choice quiz focused ONLY on the concepts in this text.
 
 Rules:
 - Exactly 10 questions
@@ -128,3 +133,4 @@ def genquiz():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
