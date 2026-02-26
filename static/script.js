@@ -21,7 +21,17 @@ async function generateQuiz() {
             alert("Please select a file.");
             return;
         }
-        textContent = await fileInput.files[0].text();
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        const response = await fetch("/quizgen", {
+            method: "POST",
+            body: formData
+        });
+
+        const quizData = await response.json();
+        displayQuiz(quizData);
+        return;
     } else {
         link = document.getElementById("linkInput").value;
         if (!link) {
@@ -136,7 +146,7 @@ function checkAnswers(data) {
         };
 
         document.getElementById("noRetry").onclick = () => {
-            promptDiv.innerHTML = "<p>Great job! Keep studying! 💪</p>";
+            promptDiv.innerHTML = "<p>Great job! Keep studying!</p>";
         };
     }
 }
@@ -147,4 +157,27 @@ async function generateWeakQuiz(weakContent) {
 
     const quizData = await sendToAI(weakContent, "");
     displayQuiz(quizData);
+}
+
+async function loadHistory() {
+    const response = await fetch("/history");
+    const history = await response.json();
+
+    const container = document.getElementById("quizContainer");
+    container.innerHTML = "<h2>Quiz History</h2>";
+
+    history.reverse().forEach((quiz, i) => {
+        const div = document.createElement("div");
+        div.classList.add("question");
+
+        div.innerHTML = `
+            <p><strong>Quiz ${history.length - i}</strong></p>
+            <p><em>${quiz.timestamp}</em></p>
+            <button onclick='displayQuiz(${JSON.stringify(quiz)})'>
+                Open Quiz
+            </button>
+        `;
+
+        container.appendChild(div);
+    });
 }

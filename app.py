@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from werkzeug.utils import secure_filename
 from util import *
 from flask import render_template
+import datetime
 
 # =========================
 # Flask Setup
@@ -53,6 +54,12 @@ def extract_text_from_url(url):
     except Exception as e:
         print("URL fetch error:", e)
         return None
+# =========================
+# Save Previous Quizzes
+# =========================
+
+def save_quiz_to_history(quiz_data):
+    print(quiz_data) ## fix
 
 # =========================
 # Quiz Generator
@@ -111,6 +118,34 @@ Text:
 @app.route("/quizgen", methods=["POST"])
 def genquiz():
 
+    # FILE MODE
+    if "file" in request.files:
+        file = request.files["file"]
+
+        if file.filename == "":
+            return jsonify({"error": "No file selected"}), 400
+
+        filename = file.filename
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(filepath)
+
+        ext = filename.lower().split(".")[-1]
+
+        if ext == "pdf":
+            text = extract_text_from_pdf(filepath)
+        elif ext == "docx":
+            text = extract_text_from_docx(filepath)
+        elif ext == "txt":
+            with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+                text = f.read()
+        else:
+            return jsonify({"error": "Unsupported file type"}), 400
+
+        ##save_quiz_to_history(text)
+
+        return jsonify(create_quiz_from_text(text))
+
+    # JSON MODE (for regenerate weak quiz)
     if request.is_json:
         data = request.get_json()
         text = data.get("text", "").strip()
@@ -124,9 +159,18 @@ def genquiz():
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
+        ##save_quiz_to_history(text)
+
         return jsonify(create_quiz_from_text(text))
 
     return jsonify({"error": "Invalid request"}), 400
+
+@app.route("/history", methods=["GET"])
+def get_history():
+    with open("quiz_history.json", "r") as f:
+        history = json.load(f)
+
+    return jsonify(history)
 
 # =========================
 # Run
