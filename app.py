@@ -1,116 +1,84 @@
-# imports #
+# =========================
+# Imports
+# =========================
+import os
 import openai
 import json
+import requests
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from bs4 import BeautifulSoup
 from werkzeug.utils import secure_filename
 from util import *
-import requests # to summarize/quiz a website 👀
-from bs4 import BeautifulSoup
+from flask import render_template
+import datetime
 
-# flask setup #
-app = Flask(__name__)
-CORS(
-    app,
-    resources={r"/*": {"origins": "*"}},  # Allow all origins for all routes
-    methods=["GET", "POST", "OPTIONS", "HEAD"], # Ensure OPTIONS is allowed for preflight
-    allow_headers=["Content-Type", "Authorization"] # Allow common headers
-    )
-app.config["UPLOAD_FOLDER"] = "uploads"  # Directory to store uploaded files
+def save_quiz_to_history(quiz_data):
+    history_file = "quiz_history.json"
+
+    if not os.path.exists(history_file):
+        with open(history_file, "w") as f:
+            json.dump([], f)
+
+    with open(history_file, "r") as f:
+        history = json.load(f)
+
+    quiz_entry = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "questions": quiz_data["questions"]
+    }
+
+    history.append(quiz_entry)
+
+    with open(history_file, "w") as f:
+        json.dump(history, f, indent=4)
+
+# =========================
+# Flask Setup
+# =========================
+app = Flask(__name__, static_folder="static")
+app.config["UPLOAD_FOLDER"] = "uploads"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
+# =========================
+# OpenAI Setup
+# =========================
 def get_key():
-    f = open("api key.txt")
-    key = f.read()
-    f.close()
-    return key
+    with open("api key.txt") as f:
+        return f.read().strip()
 
-# openai setup #
-client = openai.OpenAI(api_key=f"{get_key()}")
+client = openai.OpenAI(api_key=get_key())
 
-# actual app api
-    
-def create_notes(upload, mode="upload"):
-    if mode == "upload":
-        root, file_ext = os.path.splitext(upload)
-        file_ext = file_ext[1:]
-        text = ""
+# =========================
+# Serve Frontend
+# =========================
+@app.route("/")
+def home():
+    return render_template("index.html")
 
-        if file_ext == "pdf":
-            text = extract_text_from_pdf(upload)
-        elif file_ext == "docx":
-            text = extract_text_from_docx(upload)
-        elif file_ext in ["png", "jpeg", "jpg"]:
-            text = extract_from_image(upload)
-        elif file_ext in ["mp3", "wav"]:
-            text = extract_from_audio(upload)
-        elif file_ext == "txt":
-            with open(upload, "r") as f:
-                text = f.read()
-                f.close()
+# =========================
+# Extract Website Text
+# =========================
+def extract_text_from_url(url):
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        r = requests.get(url, headers=headers, timeout=10)
+        r.raise_for_status()
 
-            prompt = f"Generate notes based on the following text using the bullet point note-taking method. Notes should be short but comprehensive. Format in HTML in raw text. Remove the references portion.\n{text}"
+        soup = BeautifulSoup(r.text, "html.parser")
 
-            completion = client.chat.completions.create(
-                max_tokens=4096,
-                n=1,
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}]
-            )
+        for tag in soup(["script", "style", "nav", "footer"]):
+            tag.decompose()
 
-            return completion.choices[0].message.content
-        else:
-            return file_ext, "Unsupported file type"
-    
-    elif mode == "url":
-        try:
-            request = requests.get(upload)
-            soup = BeautifulSoup(request.text, "html.parser")
-            text = soup.get_text(separator=" ", strip=True)
+        return soup.get_text(separator=" ", strip=True)
 
-            prompt = f"Extract all the text from this html file and generate notes based on the following text using the bullet point note-taking method. Notes should be short but comprehensive. Format in HTML in raw text. Remove the references portion.\n{text}"
+    except Exception as e:
+        print("URL fetch error:", e)
+        return None
 
-            completion = client.chat.completions.create(
-                max_tokens=4096,
-                n=1,
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}]
-            )
-
-            return completion.choices[0].message.content
-        except Exception:
-            return upload, "Invalid link"
-
-def create_quiz(upload, mode="upload"):
-    root, file_ext = os.path.splitext(upload)
-    file_ext = file_ext[1:]
-
-    if mode == "upload":
-        if file_ext == "pdf":
-            text = extract_text_from_pdf(upload)
-        elif file_ext == "docx":
-            text = extract_text_from_docx(upload)
-        elif file_ext in ["png", "jpeg", "jpg"]:
-            text = extract_from_image(upload)
-        elif file_ext in ["mp3", "wav"]:
-            text = extract_from_audio(upload)
-        elif file_ext == "txt":
-            with open(upload, "r") as f:
-                text = f.read()
-                f.close()
-        else:
-            return file_ext, "Unsupported file type"
-
-    elif mode == "url":
-        try:
-            r = requests.get(upload, timeout=10)
-            soup = BeautifulSoup(r.text, "html.parser")
-            text = soup.get_text(separator=" ", strip=True)
-        except Exception:
-            return {"error": "Invalid link"}
-
-    else:
-        return {"error": "Invalid mode"}
+# =========================
+# Quiz Generator
+# =========================
+def create_quiz_from_text(text):
 
     prompt = f"""
 Generate a multiple choice quiz.
@@ -119,10 +87,9 @@ Rules:
 - Exactly 10 questions
 - 4 choices each
 - One correct answer
-- Include a short explanation for why the correct answer is correct
 - Output ONLY valid JSON
 - No markdown
-- No explanations outside JSON
+- Short single sentence explanation
 
 JSON format:
 {{
@@ -131,7 +98,7 @@ JSON format:
       "question": "text",
       "choices": ["A", "B", "C", "D"],
       "answer": 0,
-      "explanation": "Why this answer is correct"
+      "explanation": "text"
     }}
   ]
 }}
@@ -139,8 +106,6 @@ JSON format:
 Text:
 {text}
 """
-    
-# add hint/correct part
 
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -156,141 +121,44 @@ Text:
         print("Invalid JSON from model:\n", raw)
         return {"error": "Quiz generation failed"}
 
-# main flask stuff
-@app.route("/notegen", methods=["POST"])
-def gennote():
-    # --- LINK MODE ---
-    if "link" in request.form:
-        link = request.form.get("link", "").strip()
-        if not link:
-            return jsonify({"error": "Empty link"}), 400
-
-        notes = create_notes(link, mode="url")
-        return jsonify({"output": notes})
-
-    # --- FILE MODE ---
-    if "file" not in request.files:
-        return jsonify({"error": "No file or link provided"}), 400
-
-    file = request.files["file"]
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(file_path)
-
-    notes = create_notes(file_path, mode="upload")
-    os.remove(file_path)
-
-    return jsonify({"output": notes})
-
+# =========================
+# Quiz Route
+# =========================
 @app.route("/quizgen", methods=["POST"])
 def genquiz():
+
     if request.is_json:
         data = request.get_json()
-        if "weak" in data:
-            weak_text = data["weak"]
+        text = data.get("text", "").strip()
+        link = data.get("link", "").strip()
 
-            prompt = f"""
-    Generate a multiple choice quiz focused only on the weak topics below.
+        if link:
+            text = extract_text_from_url(link)
+            if not text:
+                return jsonify({"error": "Invalid or blocked link"}), 400
 
-    Rules:
-    - Exactly 5 questions
-    - 4 choices each
-    - One correct answer
-    - Include explanation
-    - Output ONLY valid JSON
-    - No markdown
+        if not text:
+            return jsonify({"error": "No text provided"}), 400
 
-    JSON format:
-    {{
-    "questions": [
-        {{
-        "question": "text",
-        "choices": ["A", "B", "C", "D"],
-        "answer": 0,
-        "explanation": "Why this answer is correct"
-        }}
-    ]
-    }}
+        result = {
+            "questions": questions_list
+        }
 
-    Weak Topics:
-    {weak_text}
-    """
+        save_quiz_to_history(result)
 
-            completion = client.chat.completions.create(
-                model="gpt-4o-mini",
-                max_tokens=2048,
-                messages=[{"role": "user", "content": prompt}]
-            )
+        return jsonify(result)
 
-            return json.loads(completion.choices[0].message.content.strip())
+    return jsonify({"error": "Invalid request"}), 400
 
-    if "link" in request.form:
-        link = request.form.get("link", "").strip()
-        if not link:
-            return jsonify({"error": "Empty link"}), 400
+@app.route("/history", methods=["GET"])
+def get_history():
+    with open("quiz_history.json", "r") as f:
+        history = json.load(f)
 
-        quiz = create_quiz(link, mode="url")
-        return jsonify(quiz)
+    return jsonify(history)
 
-    # --- FILE MODE ---
-    if "file" not in request.files:
-        return jsonify({"error": "No file or link provided"}), 400
-
-    file = request.files["file"]
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(file_path)
-
-    quiz = create_quiz(file_path, mode="upload")
-    os.remove(file_path)
-
-    return jsonify(quiz)
-
-@app.route("/answerquiz", methods=["POST"])
-def answer():
-    question = request.data.decode('utf-8')
-    print(question)
-
-    if not question:
-        return jsonify({"error": "No question provided in request body."}), 400
-
-    prompt = f"Give a clear, short, and concise answer to the given question:\n{question}"
-
-    print(prompt)
-
-    completion = client.chat.completions.create(
-        max_tokens=4096,
-        n=1,
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    answer = completion.choices[0].message.content
-
-    return jsonify({"output": answer})
-
-@app.route("/resolveanswer", methods=["POST"])
-def resolveanswer():
-    qna = request.data.decode('utf-8')
-
-    if not qna:
-        return jsonify({"error": "No question provided in request body."}), 400
-
-    prompt = qna
-
-    print(prompt)
-
-    completion = client.chat.completions.create(
-        max_tokens=4096,
-        n=1,
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    data = completion.choices[0].message.content
-
-    return jsonify({"output": data})
-
+# =========================
+# Run
+# =========================
 if __name__ == "__main__":
-
     app.run(host="0.0.0.0", port=5000, debug=True)

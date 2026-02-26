@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Quiz Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="side-card">
+    <button onclick="loadHistory()" class="generate-btn">View Past Quizzes</button>
+</div>
+
+<div class="main-card">
+    <h1>AI Quiz Generator</h1>
+
+    <div class="mode-switch">
+        <button class="mode-btn active" onclick="setMode('file', this)">Upload File</button>
+        <button class="mode-btn" onclick="setMode('link', this)">Use Link</button>
+    </div>
+
+    <div id="fileMode">
+        <input type="file" id="fileInput">
+    </div>
+
+    <div id="linkMode" style="display:none;">
+        <input type="text" id="linkInput" placeholder="Paste URL here">
+    </div>
+
+    <button class="generate-btn" onclick="generateQuiz()">Generate Quiz</button>
+
+    <div id="quizContainer"></div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
