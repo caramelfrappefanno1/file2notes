@@ -1,1 +1,117 @@
-[]
+[
+    {
+        "timestamp": "2026-02-27 11:51:58",
+        "questions": [
+            {
+                "question": "What is the measure of the amount of substance called?",
+                "choices": [
+                    "Force",
+                    "Mass",
+                    "Weight",
+                    "Volume"
+                ],
+                "answer": 1,
+                "explanation": "Mass is defined as the measure of the amount of substance."
+            },
+            {
+                "question": "What is the SI unit for mass?",
+                "choices": [
+                    "Newton",
+                    "Kilogram",
+                    "Meter",
+                    "Second"
+                ],
+                "answer": 1,
+                "explanation": "The SI unit for mass is the kilogram."
+            },
+            {
+                "question": "What does the moment of mass with respect to a point indicate?",
+                "choices": [
+                    "Mass level",
+                    "Balance point",
+                    "Rotational effect",
+                    "Total weight"
+                ],
+                "answer": 2,
+                "explanation": "The moment of mass indicates the rotational effect around a point."
+            },
+            {
+                "question": "How is the center of mass defined?",
+                "choices": [
+                    "Total mass over total distance",
+                    "Moment of mass over total mass",
+                    "Average of all distances",
+                    "Sum of forces"
+                ],
+                "answer": 1,
+                "explanation": "The center of mass is defined as the moment of mass divided by the total mass."
+            },
+            {
+                "question": "What is the relationship between the forces and mass as per Newton's second law?",
+                "choices": [
+                    "F = mv",
+                    "F = ma",
+                    "F = mx",
+                    "F = ma\u00b2"
+                ],
+                "answer": 1,
+                "explanation": "Newton's second law states that force equals mass times acceleration (F = ma)."
+            },
+            {
+                "question": "What happens when the moment of mass of a system equals zero?",
+                "choices": [
+                    "The system is in motion",
+                    "The system is in equilibrium",
+                    "The system is unstable",
+                    "The system has no mass"
+                ],
+                "answer": 1,
+                "explanation": "If the moment of mass is zero, the system is in equilibrium."
+            },
+            {
+                "question": "What is linear density?",
+                "choices": [
+                    "Mass per unit area",
+                    "Mass per unit volume",
+                    "Mass per unit length",
+                    "Mass per unit time"
+                ],
+                "answer": 2,
+                "explanation": "Linear density is defined as mass per unit length."
+            },
+            {
+                "question": "What is the total mass of a system represented by?",
+                "choices": [
+                    "M = \u2211mx",
+                    "m = \u2211m",
+                    "M = \u2211F",
+                    "m = \u03c1L"
+                ],
+                "answer": 1,
+                "explanation": "The total mass of the system is represented as m = \u2211m."
+            },
+            {
+                "question": "In the context of finding the center of mass, what does x\u00af represent?",
+                "choices": [
+                    "Length of the rod",
+                    "Origin point",
+                    "Balance point",
+                    "Center of mass"
+                ],
+                "answer": 3,
+                "explanation": "x\u00af is the symbol representing the center of mass."
+            },
+            {
+                "question": "What does the moment of mass of a rod with respect to the origin depend on?",
+                "choices": [
+                    "Total weight",
+                    "Linear density function",
+                    "Mass only",
+                    "Distance only"
+                ],
+                "answer": 1,
+                "explanation": "The moment of mass depends on the linear density function and the distances along the rod."
+            }
+        ]
+    }
+]

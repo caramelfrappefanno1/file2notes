@@ -7,7 +7,17 @@
 <body>
 
 <div class="side-card">
-    <button onclick="loadHistory()" class="generate-btn">View Past Quizzes</button>
+    <button onclick="toggleHistory()" class="history-toggle">
+        ☰ Past Quizzes
+    </button>
+
+    <div id="historyPanel" class="history-panel">
+        <div class="history-header">
+            <h3>Past Quizzes</h3>
+            <button onclick="toggleHistory()" class="close-btn">✕</button>
+        </div>
+        <div id="historyList"></div>
+    </div>
 </div>
 
 <div class="main-card">

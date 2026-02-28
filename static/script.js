@@ -12,36 +12,69 @@ async function generateQuiz() {
     const container = document.getElementById("quizContainer");
     container.innerHTML = "<p>Generating quiz... please wait.</p>";
 
-    let textContent = "";
-    let link = "";
+    try {
+        if (currentMode === "file") {
+            const fileInput = document.getElementById("fileInput");
 
-    if (currentMode === "file") {
-        const fileInput = document.getElementById("fileInput");
-        if (!fileInput.files.length) {
-            alert("Please select a file.");
-            return;
+            if (!fileInput.files.length) {
+                alert("Please select a file.");
+                container.innerHTML = "";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            const response = await fetch("/quizgen", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                showErrorPopup(data.error || "Server error occurred.");
+                container.innerHTML = "";
+                return;
+            }
+
+            displayQuiz(data);
+        } 
+        
+        else if (currentMode === "link") {
+            let link = document.getElementById("linkInput").value.trim();
+
+            if (!link) {
+                alert("Please enter a URL.");
+                container.innerHTML = "";
+                return;
+            }
+
+            // Auto-add https:// if missing
+            if (!link.startsWith("http://") && !link.startsWith("https://")) {
+                link = "https://" + link;
+            }
+
+            const response = await fetch("/quizgen", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ link: link })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                container.innerHTML = `<p class="incorrect">${data.error || "Error generating quiz."}</p>`;
+                return;
+            }
+
+            displayQuiz(data);
         }
-        const formData = new FormData();
-        formData.append("file", fileInput.files[0]);
 
-        const response = await fetch("/quizgen", {
-            method: "POST",
-            body: formData
-        });
-
-        const quizData = await response.json();
-        displayQuiz(quizData);
-        return;
-    } else {
-        link = document.getElementById("linkInput").value;
-        if (!link) {
-            alert("Please enter a URL.");
-            return;
-        }
-    }
-
-    const quizData = await sendToAI(textContent, link);
-    displayQuiz(quizData);
+    } catch (err) {
+    console.error(err);
+    showErrorPopup("Network error. Please check your internet connection.");
+}
 }
 
 async function sendToAI(text, link) {
@@ -163,21 +196,41 @@ async function loadHistory() {
     const response = await fetch("/history");
     const history = await response.json();
 
-    const container = document.getElementById("quizContainer");
-    container.innerHTML = "<h2>Quiz History</h2>";
+    const list = document.getElementById("historyList");
+    list.innerHTML = "";
 
-    history.reverse().forEach((quiz, i) => {
+    if (!history.length) {
+        list.innerHTML = "<p>No past quizzes yet.</p>";
+        return;
+    }
+
+    history.slice().reverse().forEach((quiz, i) => {
         const div = document.createElement("div");
-        div.classList.add("question");
+        div.className = "history-item";
 
         div.innerHTML = `
-            <p><strong>Quiz ${history.length - i}</strong></p>
-            <p><em>${quiz.timestamp}</em></p>
-            <button onclick='displayQuiz(${JSON.stringify(quiz)})'>
-                Open Quiz
-            </button>
+            <strong>Quiz ${history.length - i}</strong>
+            <p style="font-size:12px;">${quiz.timestamp}</p>
         `;
 
-        container.appendChild(div);
+        const btn = document.createElement("button");
+        btn.className = "generate-btn";
+        btn.textContent = "Open Quiz";
+        btn.onclick = () => {
+            displayQuiz(quiz);
+            toggleHistory(); // auto close drawer
+        };
+
+        div.appendChild(btn);
+        list.appendChild(div);
     });
+}
+
+function toggleHistory() {
+    const panel = document.getElementById("historyPanel");
+    panel.classList.toggle("open");
+
+    if (panel.classList.contains("open")) {
+        loadHistory();
+    }
 }
