@@ -1,29 +1,75 @@
+/* =========================
+   GLOBAL
+========================= */
+
 body {
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #667eea, #764ba2);
+    margin: 0;
     display: flex;
     justify-content: center;
-    padding: 40px;
-    margin: 0;
+    align-items: center;
+    min-height: 100vh;
 }
 
-.main-card {
+/* =========================
+   SIDEBAR
+========================= */
+
+.side-card {
+    position: fixed;           /* This keeps it from scrolling away */
+    left: 30px;
+    top: 30px;                /* Anchored to the top of the viewport */
+    width: 280px;             /* Wider for better name visibility */
+    max-height: calc(100vh - 60px); /* Height is the full screen minus margins */
     background: white;
-    padding: 30px;
-    width: 700px;
+    padding: 20px;
     border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    animation: fadeIn 0.4s ease-in-out;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    overflow-y: auto;         /* Adds a scrollbar INSIDE the sidebar if needed */
+    z-index: 1000;            /* Keeps it above other elements */
+    display: flex;
+    flex-direction: column;
 }
+
+/* Make the scrollbar look cleaner */
+.side-card::-webkit-scrollbar {
+    width: 6px;
+}
+.side-card::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+/* =========================
+   MAIN WHITE CENTER BAR
+========================= */
+
+.main-card {
+    margin-left: 320px; /* Pushes the main quiz area to the right of the sidebar */
+    background: white;
+    width: 700px;
+    padding: 40px;
+    border-radius: 25px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+/* =========================
+   TITLE
+========================= */
 
 h1 {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
+    color: #333;
 }
+
+/* =========================
+   MODE SWITCH
+========================= */
 
 .mode-switch {
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .mode-btn {
@@ -45,39 +91,66 @@ h1 {
     transform: scale(1.05);
 }
 
-.generate-btn {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.generate-btn:hover {
-    background: #5a67d8;
-    transform: translateY(-2px);
-}
+/* =========================
+   INPUTS
+========================= */
 
 input[type="file"],
 input[type="text"] {
     width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 10px;
     border: 1px solid #ccc;
 }
 
+/* =========================
+   BUTTONS
+========================= */
+
+.generate-btn,
+.notes-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.generate-btn:hover,
+.notes-btn:hover {
+    background: #5a67d8;
+    transform: translateY(-2px);
+}
+
+.history-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* =========================
+   QUESTIONS
+========================= */
+
 .question {
-    margin-top: 25px;
-    padding: 15px;
+    margin-top: 30px;
+    padding: 20px;
     background: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
 
 .correct {
@@ -91,72 +164,145 @@ input[type="text"] {
 }
 
 .explanation {
-    margin-top: 8px;
+    margin-top: 10px;
     font-style: italic;
     color: #555;
 }
 
+/* =========================
+   HISTORY BUTTONS
+========================= */
+
+#historyList button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: #f1f1f1;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#historyList button:hover {
+    background: #e0e0e0;
+}
+
+
+/* =========================
+   ANIMATION
+========================= */
+
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* History Toggle Button */
-.history-toggle {
-    position: fixed;
-    left: 20px;
-    top: 20px;
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: none;
-    background: #667eea;
-    color: white;
-    cursor: pointer;
-    z-index: 1100;
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+    .side-card {
+        display: none;
+    }
+
+    .main-card {
+        width: 95%;
+        padding: 30px;
+    }
 }
 
-/* Side Panel */
-.history-panel {
-    position: fixed;
-    top: 0;
-    left: -350px;
-    width: 320px;
-    height: 100%;
-    background: white;
-    box-shadow: 5px 0 25px rgba(0,0,0,0.2);
-    padding: 20px;
-    transition: left 0.3s ease;
-    overflow-y: auto;
-    z-index: 1200;
+/* Progress Bar Styling */
+progress {
+    appearance: none;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
 }
 
-/* When open */
-.history-panel.open {
-    left: 0;
+progress::-webkit-progress-bar {
+    background-color: #eee;
+    border-radius: 5px;
 }
 
-.history-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.close-btn {
-    border: none;
-    background: transparent;
-    font-size: 18px;
-    cursor: pointer;
+progress::-webkit-progress-value {
+    background: linear-gradient(to right, #667eea, #764ba2);
+    border-radius: 5px;
 }
 
 .history-item {
-    background: #f4f4f4;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    margin-bottom: 12px; /* Gap between quizzes */
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
 }
 
-.history-item button {
-    margin-top: 8px;
-    width: 100%;
+.history-item:hover {
+    transform: translateX(5px); /* Subtle slide effect on hover */
+    border-color: #667eea;
 }
+
+.history-item button.quiz-btn {
+    width: 100%;
+    text-align: left;
+    padding: 10px 40px 10px 15px; /* Extra right padding for the dots */
+}
+
+.quiz-btn-main {
+    flex-grow: 1;
+    text-align: left;
+    padding: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #2d3436;
+    white-space: nowrap;      /* Keep name on one line */
+    overflow: hidden;         /* Hide overflow */
+    text-overflow: ellipsis;  /* Add '...' if name is too long */
+}
+
+.quiz-btn-main strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #4834d4; /* Distinct color for titles */
+}
+
+.dots-btn {
+    padding: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #888;
+}
+
+.dots-btn:hover { background: #eee; }
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 40px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    z-index: 100;
+    min-width: 100px;
+}
+
+.dropdown-menu.show { display: block; }
+
+.dropdown-menu div {
+    padding: 10px 15px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.dropdown-menu div:hover { background: #f0f0f0; }
+.delete-opt { color: #e74c3c; border-top: 1px solid #eee; }
+

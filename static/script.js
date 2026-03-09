@@ -1,236 +1,184 @@
+let currentQuiz = null;
 let currentMode = "file";
+let loadedHistory = [];
 
-function setMode(mode, btn) {
-    currentMode = mode;
-    document.getElementById("fileMode").style.display = mode === "file" ? "block" : "none";
-    document.getElementById("linkMode").style.display = mode === "link" ? "block" : "none";
-    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+function showError(msg){
+    alert(msg);
 }
+
+
+function setMode(m) {
+    currentMode = m; 
+    document.getElementById("fileMode").style.display = m === "file" ? "block" : "none";
+    document.getElementById("linkMode").style.display = m === "link" ? "block" : "none";
+
+    // Add this to update the button highlight
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.classList.remove("active");
+        if (btn.textContent.toLowerCase() === m) {
+            btn.classList.add("active");
+        }
+    });
+}
+
 
 async function generateQuiz() {
-    const container = document.getElementById("quizContainer");
-    container.innerHTML = "<p>Generating quiz... please wait.</p>";
+    const btn = document.querySelector(".generate-btn");
+    const progContainer = document.getElementById("progressContainer");
+    const progBar = document.getElementById("uploadProgress");
+    const progText = document.getElementById("progressText");
+    const formData = new FormData();
 
-    try {
-        if (currentMode === "file") {
-            const fileInput = document.getElementById("fileInput");
-
-            if (!fileInput.files.length) {
-                alert("Please select a file.");
-                container.innerHTML = "";
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append("file", fileInput.files[0]);
-
-            const response = await fetch("/quizgen", {
-                method: "POST",
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                showErrorPopup(data.error || "Server error occurred.");
-                container.innerHTML = "";
-                return;
-            }
-
-            displayQuiz(data);
-        } 
-        
-        else if (currentMode === "link") {
-            let link = document.getElementById("linkInput").value.trim();
-
-            if (!link) {
-                alert("Please enter a URL.");
-                container.innerHTML = "";
-                return;
-            }
-
-            // Auto-add https:// if missing
-            if (!link.startsWith("http://") && !link.startsWith("https://")) {
-                link = "https://" + link;
-            }
-
-            const response = await fetch("/quizgen", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ link: link })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                container.innerHTML = `<p class="incorrect">${data.error || "Error generating quiz."}</p>`;
-                return;
-            }
-
-            displayQuiz(data);
-        }
-
-    } catch (err) {
-    console.error(err);
-    showErrorPopup("Network error. Please check your internet connection.");
-}
-}
-
-async function sendToAI(text, link) {
-    const response = await fetch("/quizgen", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, link })
-    });
-    return await response.json();
-}
-
-function displayQuiz(data) {
-    const container = document.getElementById("quizContainer");
-    container.innerHTML = "";
-
-    if (!data.questions || !Array.isArray(data.questions)) {
-        container.innerHTML = "<p class='incorrect'>Error generating quiz. Please try again.</p>";
-        return;
+    // 1. Validation Logic
+    if (currentMode === "link") {
+        const linkVal = document.getElementById("linkInput").value.trim();
+        if (!linkVal) return alert("Please enter a link");
+        formData.append("link", linkVal);
+    } else {
+        const fileInput = document.getElementById("fileInput");
+        if (fileInput.files.length === 0) return alert("Please select a file");
+        formData.append("file", fileInput.files[0]);
     }
 
-    // FIXED: Only one loop to create questions
-    data.questions.forEach((q, index) => {
-        const div = document.createElement("div");
-        div.classList.add("question");
+    // 2. UI State
+    btn.disabled = true;
+    btn.textContent = "Processing...";
+    progContainer.style.display = "block";
 
-        // Use 'choices' to match the AI prompt in app.py
-        div.innerHTML = `
-            <p><strong>Q${index + 1}:</strong> ${q.question}</p>
-            ${q.choices.map((opt, i) => `
-                <label>
-                    <input type="radio" name="q${index}" value="${i}">
-                    ${opt}
-                </label><br>
-            `).join("")}
-            <div id="feedback-${index}"></div>
-        `;
-        container.appendChild(div);
-    });
-
-    const submitBtn = document.createElement("button");
-    submitBtn.className = "generate-btn";
-    submitBtn.textContent = "Submit Quiz";
-    submitBtn.onclick = () => checkAnswers(data);
-    container.appendChild(submitBtn);
-}
-
-function checkAnswers(data) {
-    let correctCount = 0;
-    let weakText = [];
-
-    data.questions.forEach((q, index) => {
-        const selected = document.querySelector(`input[name="q${index}"]:checked`);
-        const feedbackDiv = document.getElementById(`feedback-${index}`);
-        
-        if (!selected) {
-            feedbackDiv.innerHTML = `<p class="incorrect">No answer selected</p>`;
-            weakText.push(q.question + " " + q.explanation);
-            return;
+    // 3. Create XHR for progress tracking
+    const xhr = new XMLHttpRequest();
+    
+    xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            progBar.value = percent;
+            progText.textContent = `Uploading... ${percent}%`;
+            
+            if (percent === 100) {
+                progText.textContent = "AI is generating your quiz... (this may take a moment)";
+            }
         }
+    };
 
-        const selectedIndex = parseInt(selected.value);
+    xhr.onload = function() {
+        btn.disabled = false;
+        btn.textContent = "Generate Quiz";
+        progContainer.style.display = "none";
 
-        if (selectedIndex === q.answer) {
-            correctCount++;
-            feedbackDiv.innerHTML = `
-                <p class="correct">Correct!</p>
-                <div class="explanation">${q.explanation}</div>
-            `;
+        if (xhr.status === 200) {
+            const quizData = JSON.parse(xhr.responseText);
+            displayQuiz(quizData);
         } else {
-            feedbackDiv.innerHTML = `
-                <p class="incorrect">Incorrect. Correct answer: ${q.choices[q.answer]}</p>
-                <div class="explanation">${q.explanation}</div>
-            `;
-            weakText.push(q.question + " " + q.explanation);
+            alert("Error: " + xhr.statusText);
         }
+    };
+
+    xhr.onerror = function() {
+        alert("Network error occurred.");
+        btn.disabled = false;
+        btn.textContent = "Generate Quiz";
+        progContainer.style.display = "none";
+    };
+
+    xhr.open("POST", "/quizgen", true);
+    xhr.send(formData);
+}
+
+
+function displayQuiz(quiz) {
+    let c = document.getElementById("quizContainer");
+    c.innerHTML="";
+    quiz.questions.forEach((q,i)=>{
+        c.innerHTML+=`
+        <div class="question">
+        <p>${q.question}</p>
+        ${q.choices.map((x,j)=>
+        `<label><input type=radio name=q${i} value=${j}>${x}</label><br>`).join("")}
+        <div id=f${i}></div>
+        </div>`
     });
-
-    const scorePercent = Math.round((correctCount / data.questions.length) * 100);
-
-    const container = document.getElementById("quizContainer");
-
-    const resultDiv = document.createElement("div");
-    resultDiv.className = "question";
-    resultDiv.innerHTML = `
-        <h3>Your Score: ${correctCount} / ${data.questions.length} (${scorePercent}%)</h3>
-    `;
-    container.appendChild(resultDiv);
-
-    // Only show retest option if user got something wrong
-    if (weakText.length > 0) {
-        const promptDiv = document.createElement("div");
-        promptDiv.className = "question";
-        promptDiv.innerHTML = `
-            <p><strong>Would you like another test focused on your weak areas?</strong></p>
-            <button class="generate-btn" id="yesRetry">Yes</button>
-            <button class="mode-btn" id="noRetry">No</button>
-        `;
-        container.appendChild(promptDiv);
-
-        document.getElementById("yesRetry").onclick = () => {
-            generateWeakQuiz(weakText.join(" "));
-        };
-
-        document.getElementById("noRetry").onclick = () => {
-            promptDiv.innerHTML = "<p>Great job! Keep studying!</p>";
-        };
-    }
+    c.innerHTML+=`<button id="downloadPDF" onclick="downloadPDF()" class="generate-btn">Download PDF</button>`
 }
 
-async function generateWeakQuiz(weakContent) {
-    const container = document.getElementById("quizContainer");
-    container.innerHTML = "<p>Generating new quiz based on weak areas...</p>";
-
-    const quizData = await sendToAI(weakContent, "");
-    displayQuiz(quizData);
-}
 
 async function loadHistory() {
-    const response = await fetch("/history");
-    const history = await response.json();
-
+    const res = await fetch("/history");
+    loadedHistory = await res.json(); // Store it globally
+    
     const list = document.getElementById("historyList");
     list.innerHTML = "";
 
-    if (!history.length) {
-        list.innerHTML = "<p>No past quizzes yet.</p>";
-        return;
-    }
-
-    history.slice().reverse().forEach((quiz, i) => {
+    // We reverse the array to show the newest quizzes first
+    // Note: index 'i' refers to the original array position
+    loadedHistory.slice().reverse().forEach((item, i) => {
+        // Calculate the actual index in the original loadedHistory array
+        const actualIndex = loadedHistory.length - 1 - i;
         const div = document.createElement("div");
         div.className = "history-item";
+        
+        const displayName = item.custom_name || `Quiz ${item.timestamp}`;
 
         div.innerHTML = `
-            <strong>Quiz ${history.length - i}</strong>
-            <p style="font-size:12px;">${quiz.timestamp}</p>
+            <div class="quiz-btn-main" onclick="openHistoryQuiz(${actualIndex})">
+                <strong>${displayName}</strong>
+            </div>
+            <button class="dots-btn" onclick="toggleMenu(event, ${actualIndex})">⋮</button>
+            <div id="menu-${actualIndex}" class="dropdown-menu">
+                <div onclick="renameQuiz('${item.timestamp}', '${displayName}')">Rename</div>
+                <div onclick="deleteQuiz('${item.timestamp}')" class="delete-opt">Delete</div>
+            </div>
         `;
-
-        const btn = document.createElement("button");
-        btn.className = "generate-btn";
-        btn.textContent = "Open Quiz";
-        btn.onclick = () => {
-            displayQuiz(quiz);
-            toggleHistory(); // auto close drawer
-        };
-
-        div.appendChild(btn);
         list.appendChild(div);
     });
 }
 
-function toggleHistory() {
-    const panel = document.getElementById("historyPanel");
-    panel.classList.toggle("open");
+function toggleMenu(event, index) {
+    event.stopPropagation();
+    // Close other open menus
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+    document.getElementById(`menu-${index}`).classList.toggle('show');
+}
 
-    if (panel.classList.contains("open")) {
-        loadHistory();
-    }
+window.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+});
+
+// Close menus when clicking anywhere else
+window.onclick = () => document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+
+async function deleteQuiz(ts) {
+    if (!confirm("Delete this quiz?")) return;
+    await fetch("/delete_quiz", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ timestamp: ts })
+    });
+    loadHistory();
+}
+
+async function renameQuiz(ts, currentName) {
+    const newName = prompt("Enter new name:", currentName);
+    if (!newName) return;
+    await fetch("/rename_quiz", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ timestamp: ts, new_name: newName })
+    });
+    loadHistory();
+}
+
+function openHistoryQuiz(index) {
+    const quizData = loadedHistory[index];
+    displayQuiz(quizData);
+}
+
+function downloadPDF()
+{
+
+window.print();
+
+}
+
+async function generateNotes() {
+    
 }
