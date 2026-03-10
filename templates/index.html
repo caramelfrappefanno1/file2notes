@@ -2,55 +2,53 @@
 <html>
 <head>
     <title>AI Quiz Generator</title>
-
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
     <div class="side-card">
+        <button onclick="toggleHistory()" class="history-toggle">
+            ☰ Past Quizzes
+        </button>
 
-        <button onclick="loadHistory()" class="history-btn">View Past Quizzes</button>
-
-        <div id="historyList"></div>
-
+        <div id="historyPanel" class="history-panel">
+            <div class="history-header">
+                <h3>Past Quizzes</h3>
+                <button onclick="toggleHistory()" class="close-btn">✕</button>
+            </div>
+            <div id="historyList"></div>
+        </div>
     </div>
 
     <div class="main-card">
         <h1>AI Quiz Generator</h1>
 
-
         <div class="mode-switch">
-            <button onclick="setMode('file')" class="mode-btn active">File</button>
-
-            <button onclick="setMode('link')" class="mode-btn">Link</button>
+            <button class="mode-btn active" onclick="setMode('file', this)">Upload File</button>
+            <button class="mode-btn" onclick="setMode('link', this)">Use Link</button>
         </div>
-
 
         <div id="fileMode">
             <input type="file" id="fileInput">
         </div>
 
-
-        <div id="linkMode" style="display:none">
-            <input id="linkInput" placeholder="Paste URL">
+        <div id="linkMode" style="display:none;">
+            <input type="text" id="linkInput" placeholder="Paste URL here">
         </div>
 
-        <button onclick="generateNotes()" class="notes-btn">Generate notes</button>
+        <button class="generate-btn" onclick="generateNotes()">Generate Notes</button>
+        <button class="generate-btn" onclick="generateQuiz()">Generate Quiz</button>
 
-        <div id="progressContainer" style="display:none; margin-top: 15px;">
-            <progress id="uploadProgress" value="0" max="100" style="width: 100%;"></progress>
-            <p id="progressText" style="text-align: center; font-size: 12px; color: #555;">Uploading... 0%</p>
+        <div id="progressContainer" style="display:none; margin-top:15px;">
+            <progress id="uploadProgress" value="0" max="100" style="width:100%;"></progress>
+            <p id="progressText" style="text-align:center; font-size:12px;">
+                Uploading... 0%
+            </p>
         </div>
-
-        <button onclick="generateQuiz()" class="generate-btn">Generate Quiz</button>
-
 
         <div id="quizContainer"></div>
     </div>
 
-
-    <script src="/static/script.js"></script>
-
-
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
