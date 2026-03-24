@@ -135,8 +135,21 @@ async function sendToAI(text, link) {
     return await response.json();
 }
 
+function saveQuizToLocal(data) {
+    let history = JSON.parse(localStorage.getItem("quizHistory")) || [];
+
+    history.push({
+        timestamp: new Date().toLocaleString(),
+        questions: data.questions
+    });
+
+    localStorage.setItem("quizHistory", JSON.stringify(history));
+}
+
 function displayQuiz(data) {
     currentQuiz = data
+
+    saveQuizToLocal(data);
     
     const container = document.getElementById("quizContainer");
     container.innerHTML = "";
@@ -314,11 +327,10 @@ async function generateWeakQuiz(weakContent) {
     displayQuiz(quizData);
 }
 
-async function loadHistory() {
-    const response = await fetch("/history");
-    const history = await response.json();
-
+function loadHistory() {
+    const history = JSON.parse(localStorage.getItem("quizHistory")) || [];
     const list = document.getElementById("historyList");
+
     list.innerHTML = "";
 
     if (!history.length) {
@@ -340,7 +352,7 @@ async function loadHistory() {
         btn.textContent = "Open Quiz";
         btn.onclick = () => {
             displayQuiz(quiz);
-            toggleHistory(); // auto close drawer
+            toggleHistory();
         };
 
         div.appendChild(btn);

@@ -113,5 +113,914 @@
                 "explanation": "The moment of mass depends on the linear density function and the distances along the rod."
             }
         ]
+    },
+    {
+        "timestamp": "2026-03-10 11:26:21",
+        "questions": [
+            {
+                "question": "What is the moment of mass with respect to a point P for a particle with mass 20 kg located 2 meters to the left of point P?",
+                "choices": [
+                    "A) -40 kg-m",
+                    "B) 0 kg-m",
+                    "C) 40 kg-m",
+                    "D) 20 kg-m"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass is calculated as m * x, where m is mass and x is the distance from point P. Here, m = 20 kg and x = -2 m, so the moment is 20 * (-2) = -40 kg-m."
+            },
+            {
+                "question": "How do you find the center of mass of multiple particles located along a line?",
+                "choices": [
+                    "A) By averaging their distances",
+                    "B) By summing their moments of mass divided by total mass",
+                    "C) By using only the mass of the heaviest particle",
+                    "D) By multiplying the total number of particles by their average mass"
+                ],
+                "answer": 1,
+                "explanation": "The center of mass is calculated by summing the moments of mass for each particle (m_i * x_i) and dividing by the total mass of the system (m = \u03a3m_i)."
+            },
+            {
+                "question": "In the example of balancing a seesaw with masses 20 kg and 30 kg located 2 meters from point P, what is the moment of mass for the 30 kg person?",
+                "choices": [
+                    "A) 60 kg-m",
+                    "B) 30 kg-m",
+                    "C) 40 kg-m",
+                    "D) 20 kg-m"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass is calculated as mass times distance. For the person with 30 kg at 2 meters, the moment is 30 * 2 = 60 kg-m."
+            },
+            {
+                "question": "What does the formula m = \u222b \u03c1(x) dx from 0 to L represent?",
+                "choices": [
+                    "A) Mass of a point particle",
+                    "B) Mass of a rod with varying density",
+                    "C) Total mass of two particles",
+                    "D) Total force exerted by a rod"
+                ],
+                "answer": 1,
+                "explanation": "This integral computes the total mass of a rod with a linear density function \u03c1(x) over the interval from 0 to L."
+            },
+            {
+                "question": "If a homogeneous rod has uniform linear density, what is the relationship between density (\u03c1), mass (m), and length (l)?",
+                "choices": [
+                    "A) \u03c1 = m * l",
+                    "B) \u03c1 = m / l",
+                    "C) \u03c1 = l / m",
+                    "D) \u03c1 = 1 / (m * l)"
+                ],
+                "answer": 1,
+                "explanation": "For a homogeneous rod, the linear density is defined as mass per unit length, given by the formula \u03c1 = m / l."
+            },
+            {
+                "question": "What do we use to denote the center of mass of a system?",
+                "choices": [
+                    "A) x\u0304",
+                    "B) y\u0304",
+                    "C) m",
+                    "D) \u03c1"
+                ],
+                "answer": 0,
+                "explanation": "The center of mass of a system is often denoted by x\u0304, which calculates the average weighted position of all masses."
+            },
+            {
+                "question": "Which statement is true about the position of the center of mass with respect to the choice of origin?",
+                "choices": [
+                    "A) It can change based on the origin",
+                    "B) It is always at the center of the system",
+                    "C) It remains independent of the origin's position",
+                    "D) It depends only on the mass of the heaviest particle"
+                ],
+                "answer": 2,
+                "explanation": "The center of mass is independent of the choice of origin; it is calculated based on the distribution of mass and does not shift with the origin."
+            },
+            {
+                "question": "To find the moment of mass for a rod, which integral is used?",
+                "choices": [
+                    "A) \u222b x\u03c1(x) dx from 0 to L",
+                    "B) \u222b \u03c1(x) dx from 0 to L",
+                    "C) \u222b m dx",
+                    "D) \u222b 1 dx"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass for a rod is computed using the integral M = \u222b x\u03c1(x) dx from 0 to L, capturing how mass is distributed along its length."
+            },
+            {
+                "question": "What role does the fulcrum play in balancing a seesaw?",
+                "choices": [
+                    "A) It increases the weight on one side",
+                    "B) It changes the total mass",
+                    "C) It is the pivot point around which moments are balanced",
+                    "D) It indicates the center of mass"
+                ],
+                "answer": 2,
+                "explanation": "The fulcrum acts as the pivot point for the seesaw, allowing balance when the moments of mass on either side of it are equal."
+            },
+            {
+                "question": "In the example of finding the center of mass of a rod, if the total mass is 36 kg and the total moment of mass is -17 kg-m, what is the center of mass?",
+                "choices": [
+                    "A) 17/36 meters",
+                    "B) 17 meters",
+                    "C) -17/36 meters",
+                    "D) -36/17 meters"
+                ],
+                "answer": 2,
+                "explanation": "The center of mass x\u0304 is calculated as the total moment of mass divided by total mass, giving x\u0304 = -17/36 meters, indicating it is to the left of the origin."
+            }
+        ]
+    },
+    {
+        "timestamp": "2026-03-10 11:26:21",
+        "questions": [
+            {
+                "question": "What is the moment of mass with respect to a point P for a particle with mass 20 kg located 2 meters to the left of point P?",
+                "choices": [
+                    "A) -40 kg-m",
+                    "B) 0 kg-m",
+                    "C) 40 kg-m",
+                    "D) 20 kg-m"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass is calculated as m * x, where m is mass and x is the distance from point P. Here, m = 20 kg and x = -2 m, so the moment is 20 * (-2) = -40 kg-m."
+            },
+            {
+                "question": "How do you find the center of mass of multiple particles located along a line?",
+                "choices": [
+                    "A) By averaging their distances",
+                    "B) By summing their moments of mass divided by total mass",
+                    "C) By using only the mass of the heaviest particle",
+                    "D) By multiplying the total number of particles by their average mass"
+                ],
+                "answer": 1,
+                "explanation": "The center of mass is calculated by summing the moments of mass for each particle (m_i * x_i) and dividing by the total mass of the system (m = \u03a3m_i)."
+            },
+            {
+                "question": "In the example of balancing a seesaw with masses 20 kg and 30 kg located 2 meters from point P, what is the moment of mass for the 30 kg person?",
+                "choices": [
+                    "A) 60 kg-m",
+                    "B) 30 kg-m",
+                    "C) 40 kg-m",
+                    "D) 20 kg-m"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass is calculated as mass times distance. For the person with 30 kg at 2 meters, the moment is 30 * 2 = 60 kg-m."
+            },
+            {
+                "question": "What does the formula m = \u222b \u03c1(x) dx from 0 to L represent?",
+                "choices": [
+                    "A) Mass of a point particle",
+                    "B) Mass of a rod with varying density",
+                    "C) Total mass of two particles",
+                    "D) Total force exerted by a rod"
+                ],
+                "answer": 1,
+                "explanation": "This integral computes the total mass of a rod with a linear density function \u03c1(x) over the interval from 0 to L."
+            },
+            {
+                "question": "If a homogeneous rod has uniform linear density, what is the relationship between density (\u03c1), mass (m), and length (l)?",
+                "choices": [
+                    "A) \u03c1 = m * l",
+                    "B) \u03c1 = m / l",
+                    "C) \u03c1 = l / m",
+                    "D) \u03c1 = 1 / (m * l)"
+                ],
+                "answer": 1,
+                "explanation": "For a homogeneous rod, the linear density is defined as mass per unit length, given by the formula \u03c1 = m / l."
+            },
+            {
+                "question": "What do we use to denote the center of mass of a system?",
+                "choices": [
+                    "A) x\u0304",
+                    "B) y\u0304",
+                    "C) m",
+                    "D) \u03c1"
+                ],
+                "answer": 0,
+                "explanation": "The center of mass of a system is often denoted by x\u0304, which calculates the average weighted position of all masses."
+            },
+            {
+                "question": "Which statement is true about the position of the center of mass with respect to the choice of origin?",
+                "choices": [
+                    "A) It can change based on the origin",
+                    "B) It is always at the center of the system",
+                    "C) It remains independent of the origin's position",
+                    "D) It depends only on the mass of the heaviest particle"
+                ],
+                "answer": 2,
+                "explanation": "The center of mass is independent of the choice of origin; it is calculated based on the distribution of mass and does not shift with the origin."
+            },
+            {
+                "question": "To find the moment of mass for a rod, which integral is used?",
+                "choices": [
+                    "A) \u222b x\u03c1(x) dx from 0 to L",
+                    "B) \u222b \u03c1(x) dx from 0 to L",
+                    "C) \u222b m dx",
+                    "D) \u222b 1 dx"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass for a rod is computed using the integral M = \u222b x\u03c1(x) dx from 0 to L, capturing how mass is distributed along its length."
+            },
+            {
+                "question": "What role does the fulcrum play in balancing a seesaw?",
+                "choices": [
+                    "A) It increases the weight on one side",
+                    "B) It changes the total mass",
+                    "C) It is the pivot point around which moments are balanced",
+                    "D) It indicates the center of mass"
+                ],
+                "answer": 2,
+                "explanation": "The fulcrum acts as the pivot point for the seesaw, allowing balance when the moments of mass on either side of it are equal."
+            },
+            {
+                "question": "In the example of finding the center of mass of a rod, if the total mass is 36 kg and the total moment of mass is -17 kg-m, what is the center of mass?",
+                "choices": [
+                    "A) 17/36 meters",
+                    "B) 17 meters",
+                    "C) -17/36 meters",
+                    "D) -36/17 meters"
+                ],
+                "answer": 2,
+                "explanation": "The center of mass x\u0304 is calculated as the total moment of mass divided by total mass, giving x\u0304 = -17/36 meters, indicating it is to the left of the origin."
+            }
+        ]
+    },
+    {
+        "timestamp": "2026-03-10 11:32:52",
+        "questions": [
+            {
+                "question": "What is the definition of moment of mass?",
+                "choices": [
+                    "A. The total mass of an object",
+                    "B. The resistance to motion",
+                    "C. The product of mass and directed distance from a point",
+                    "D. The distance from the center of mass to the origin"
+                ],
+                "answer": 2,
+                "explanation": "The moment of mass is defined as the product of mass and the directed distance from a reference point. It helps in understanding how mass is distributed along an axis."
+            },
+            {
+                "question": "What is the formula to find the center of mass of a one-dimensional system?",
+                "choices": [
+                    "A. (\u03a3mx) / \u03a3m",
+                    "B. \u03a3m / \u03a3mx",
+                    "C. m / \u03a3x",
+                    "D. m * \u03a3mx"
+                ],
+                "answer": 0,
+                "explanation": "The center of mass (x\u0304) in a one-dimensional system is calculated using the formula (\u03a3mx) / \u03a3m, where \u03a3mx is the sum of the products of mass and position, and \u03a3m is the total mass."
+            },
+            {
+                "question": "How do you determine if a system is in equilibrium?",
+                "choices": [
+                    "A. When the moment of force is zero",
+                    "B. When the sum of mass is zero",
+                    "C. When the moment of mass is zero",
+                    "D. When force is applied consistently"
+                ],
+                "answer": 2,
+                "explanation": "A system is said to be in equilibrium when the moment of mass with respect to a point is zero. This means the seesaw will not rotate in either direction."
+            },
+            {
+                "question": "If two people on a seesaw have masses of 20 kg and 30 kg, which way will it initially rotate?",
+                "choices": [
+                    "A. Clockwise",
+                    "B. Counterclockwise",
+                    "C. It won't rotate",
+                    "D. It will rotate instantly"
+                ],
+                "answer": 0,
+                "explanation": "The seesaw will initially rotate clockwise because the person weighing 30 kg produces a greater moment of mass compared to the 20 kg individual."
+            },
+            {
+                "question": "What is the SI unit of mass?",
+                "choices": [
+                    "A. Meter",
+                    "B. Newton",
+                    "C. Kilogram",
+                    "D. Gram"
+                ],
+                "answer": 2,
+                "explanation": "The SI unit for measuring mass is the kilogram (kg). Newton is the unit of force."
+            },
+            {
+                "question": "In the context of a rod, what does linear density refer to?",
+                "choices": [
+                    "A. Total mass of the rod",
+                    "B. Mass per unit length of the rod",
+                    "C. Length of the rod",
+                    "D. Distance from the center of mass"
+                ],
+                "answer": 1,
+                "explanation": "Linear density is defined as mass per unit length (\u03c1 = m/l) and indicates how mass is distributed along the length of a rod."
+            },
+            {
+                "question": "Which formula represents the moment of mass of a rod?",
+                "choices": [
+                    "A. M = \u03c1(x)dx",
+                    "B. M = \u222bx\u03c1(x)dx",
+                    "C. M = \u03a3m * x",
+                    "D. M = m * l"
+                ],
+                "answer": 1,
+                "explanation": "The moment of mass of a rod with respect to an origin is given by the integral M = \u222b x\u03c1(x)dx, where \u03c1(x) is the linear density."
+            },
+            {
+                "question": "How is the total mass of a system defined?",
+                "choices": [
+                    "A. By the moment of mass",
+                    "B. By the integral of density over a length",
+                    "C. By the sum of its individual masses",
+                    "D. By the distance to the center of mass"
+                ],
+                "answer": 2,
+                "explanation": "The total mass of a system is defined as the sum of its individual masses (m = \u03a3m_i) for all particles or objects in the system."
+            },
+            {
+                "question": "If a rod has a linear density represented by \u03c1(x) = 3x + 4, what is the mass of the rod over a length of 5 meters?",
+                "choices": [
+                    "A. 125/3 kg",
+                    "B. 155/4 kg",
+                    "C. 225/4 kg",
+                    "D. 175/3 kg"
+                ],
+                "answer": 1,
+                "explanation": "To find the mass of the rod, integrate the linear density over the length. The solution yields the total mass as 155/4 kg."
+            },
+            {
+                "question": "What is the center of mass of a system concerning the formula provided?",
+                "choices": [
+                    "A. Moment of mass over total mass",
+                    "B. Total mass over moment of mass",
+                    "C. Total distance over total mass",
+                    "D. Average mass per unit distance"
+                ],
+                "answer": 0,
+                "explanation": "The center of mass is calculated as the moment of mass (\u222b x\u03c1(x)dx) divided by the total mass (\u222b \u03c1(x)dx)."
+            }
+        ]
+    },
+    {
+        "timestamp": "2026-03-10 11:32:52",
+        "questions": [
+            {
+                "question": "What is the definition of moment of mass?",
+                "choices": [
+                    "A. The total mass of an object",
+                    "B. The resistance to motion",
+                    "C. The product of mass and directed distance from a point",
+                    "D. The distance from the center of mass to the origin"
+                ],
+                "answer": 2,
+                "explanation": "The moment of mass is defined as the product of mass and the directed distance from a reference point. It helps in understanding how mass is distributed along an axis."
+            },
+            {
+                "question": "What is the formula to find the center of mass of a one-dimensional system?",
+                "choices": [
+                    "A. (\u03a3mx) / \u03a3m",
+                    "B. \u03a3m / \u03a3mx",
+                    "C. m / \u03a3x",
+                    "D. m * \u03a3mx"
+                ],
+                "answer": 0,
+                "explanation": "The center of mass (x\u0304) in a one-dimensional system is calculated using the formula (\u03a3mx) / \u03a3m, where \u03a3mx is the sum of the products of mass and position, and \u03a3m is the total mass."
+            },
+            {
+                "question": "How do you determine if a system is in equilibrium?",
+                "choices": [
+                    "A. When the moment of force is zero",
+                    "B. When the sum of mass is zero",
+                    "C. When the moment of mass is zero",
+                    "D. When force is applied consistently"
+                ],
+                "answer": 2,
+                "explanation": "A system is said to be in equilibrium when the moment of mass with respect to a point is zero. This means the seesaw will not rotate in either direction."
+            },
+            {
+                "question": "If two people on a seesaw have masses of 20 kg and 30 kg, which way will it initially rotate?",
+                "choices": [
+                    "A. Clockwise",
+                    "B. Counterclockwise",
+                    "C. It won't rotate",
+                    "D. It will rotate instantly"
+                ],
+                "answer": 0,
+                "explanation": "The seesaw will initially rotate clockwise because the person weighing 30 kg produces a greater moment of mass compared to the 20 kg individual."
+            },
+            {
+                "question": "What is the SI unit of mass?",
+                "choices": [
+                    "A. Meter",
+                    "B. Newton",
+                    "C. Kilogram",
+                    "D. Gram"
+                ],
+                "answer": 2,
+                "explanation": "The SI unit for measuring mass is the kilogram (kg). Newton is the unit of force."
+            },
+            {
+                "question": "In the context of a rod, what does linear density refer to?",
+                "choices": [
+                    "A. Total mass of the rod",
+                    "B. Mass per unit length of the rod",
+                    "C. Length of the rod",
+                    "D. Distance from the center of mass"
+                ],
+                "answer": 1,
+                "explanation": "Linear density is defined as mass per unit length (\u03c1 = m/l) and indicates how mass is distributed along the length of a rod."
+            },
+            {
+                "question": "Which formula represents the moment of mass of a rod?",
+                "choices": [
+                    "A. M = \u03c1(x)dx",
+                    "B. M = \u222bx\u03c1(x)dx",
+                    "C. M = \u03a3m * x",
+                    "D. M = m * l"
+                ],
+                "answer": 1,
+                "explanation": "The moment of mass of a rod with respect to an origin is given by the integral M = \u222b x\u03c1(x)dx, where \u03c1(x) is the linear density."
+            },
+            {
+                "question": "How is the total mass of a system defined?",
+                "choices": [
+                    "A. By the moment of mass",
+                    "B. By the integral of density over a length",
+                    "C. By the sum of its individual masses",
+                    "D. By the distance to the center of mass"
+                ],
+                "answer": 2,
+                "explanation": "The total mass of a system is defined as the sum of its individual masses (m = \u03a3m_i) for all particles or objects in the system."
+            },
+            {
+                "question": "If a rod has a linear density represented by \u03c1(x) = 3x + 4, what is the mass of the rod over a length of 5 meters?",
+                "choices": [
+                    "A. 125/3 kg",
+                    "B. 155/4 kg",
+                    "C. 225/4 kg",
+                    "D. 175/3 kg"
+                ],
+                "answer": 1,
+                "explanation": "To find the mass of the rod, integrate the linear density over the length. The solution yields the total mass as 155/4 kg."
+            },
+            {
+                "question": "What is the center of mass of a system concerning the formula provided?",
+                "choices": [
+                    "A. Moment of mass over total mass",
+                    "B. Total mass over moment of mass",
+                    "C. Total distance over total mass",
+                    "D. Average mass per unit distance"
+                ],
+                "answer": 0,
+                "explanation": "The center of mass is calculated as the moment of mass (\u222b x\u03c1(x)dx) divided by the total mass (\u222b \u03c1(x)dx)."
+            }
+        ]
+    },
+    {
+        "timestamp": "2026-03-10 11:46:04",
+        "questions": [
+            {
+                "question": "What is the SI unit for mass?",
+                "choices": [
+                    "Newton",
+                    "Kilogram",
+                    "Meter",
+                    "Joule"
+                ],
+                "answer": 1,
+                "explanation": "Kilogram is the standard unit for measuring mass."
+            },
+            {
+                "question": "What term describes the measure of the amount of substance?",
+                "choices": [
+                    "Center of Mass",
+                    "Moment of Mass",
+                    "Density",
+                    "Mass"
+                ],
+                "answer": 3,
+                "explanation": "Mass is defined as the measure of the amount of substance."
+            },
+            {
+                "question": "How is moment of mass calculated?",
+                "choices": [
+                    "F = ma",
+                    "moment = m x",
+                    "moment = m / a",
+                    "moment = a / m"
+                ],
+                "answer": 1,
+                "explanation": "Moment of mass is calculated as the product of mass and its distance from a point."
+            },
+            {
+                "question": "In a seesaw with unequal masses, where should the lighter person move?",
+                "choices": [
+                    "Closer to the pivot",
+                    "Farther from the pivot",
+                    "Stay still",
+                    "Jump off"
+                ],
+                "answer": 0,
+                "explanation": "The lighter person should move closer to balance the seesaw."
+            },
+            {
+                "question": "What does the center of mass represent in a system?",
+                "choices": [
+                    "The heaviest part",
+                    "The average position of mass",
+                    "The origin point",
+                    "A fixed point on the axis"
+                ],
+                "answer": 1,
+                "explanation": "The center of mass represents the average position of all masses in the system."
+            },
+            {
+                "question": "What is linear density?",
+                "choices": [
+                    "Mass per unit volume",
+                    "Mass per unit length",
+                    "Force per unit mass",
+                    "Velocity per unit time"
+                ],
+                "answer": 1,
+                "explanation": "Linear density is defined as mass per unit length."
+            },
+            {
+                "question": "What is the relationship between the moment of mass and center of mass?",
+                "choices": [
+                    "They are the same",
+                    "Moment equals mass",
+                    "Moment depends on acceleration",
+                    "Moment is total mass times center of mass"
+                ],
+                "answer": 3,
+                "explanation": "Moment of mass equals the center of mass multiplied by the total mass."
+            },
+            {
+                "question": "If two masses are in equilibrium, what will the net moment of mass be?",
+                "choices": [
+                    "Less than zero",
+                    "Equal to zero",
+                    "Greater than zero",
+                    "Undefined"
+                ],
+                "answer": 1,
+                "explanation": "In equilibrium, the net moment of mass is equal to zero."
+            },
+            {
+                "question": "What is the formula for the total mass of a system?",
+                "choices": [
+                    "m = \u2211mx",
+                    "m = \u2211m",
+                    "m = \u03c1dx",
+                    "m = 1/2 x"
+                ],
+                "answer": 1,
+                "explanation": "The total mass of a system is the sum of the individual masses."
+            },
+            {
+                "question": "How is the moment of mass of a rod with respect to the origin defined mathematically?",
+                "choices": [
+                    "M = \u03c1(x)dx",
+                    "M = x\u03c1(x)dx",
+                    "M = \u2211mx",
+                    "M = 0"
+                ],
+                "answer": 1,
+                "explanation": "Moment of mass of a rod is defined as M = \u222b x\u03c1(x)dx from 0 to L."
+            }
+        ]
+    },
+    {
+        "timestamp": "2026-03-10 11:48:28",
+        "questions": [
+            {
+                "question": "What is defined as the measure of the amount of substance?",
+                "choices": [
+                    "Force",
+                    "Acceleration",
+                    "Mass",
+                    "Weight"
+                ],
+                "answer": 2,
+                "explanation": "Mass is the amount of substance in an object."
+            },
+            {
+                "question": "What is the SI unit for mass?",
+                "choices": [
+                    "Newton",
+                    "Kilogram",
+                    "Meter",
+                    "Joule"
+                ],
+                "answer": 1,
+                "explanation": "The SI unit of mass is the kilogram."
+            },
+            {
+                "question": "What is the moment of mass with respect to point P defined as?",
+                "choices": [
+                    "m/x",
+                    "m*x",
+                    "m+x",
+                    "m-x"
+                ],
+                "answer": 1,
+                "explanation": "Moment of mass is defined as mass times the distance from point P."
+            },
+            {
+                "question": "If M is the moment of mass of the system, what is the balance condition for equilibrium?",
+                "choices": [
+                    "M = 0",
+                    "M = 20",
+                    "M > 0",
+                    "M < 0"
+                ],
+                "answer": 0,
+                "explanation": "The system is in equilibrium if the moment of mass M equals zero."
+            },
+            {
+                "question": "Which formula represents the center of mass of a system?",
+                "choices": [
+                    "x = \u2211mx/\u2211m",
+                    "x = \u2211m/\u2211mx",
+                    "x = m/\u2211mx",
+                    "x = \u2211mx*m"
+                ],
+                "answer": 0,
+                "explanation": "The center of mass formula is x = \u2211mx/\u2211m."
+            },
+            {
+                "question": "For a homogeneous rod, what is the linear density represented as?",
+                "choices": [
+                    "\u03c1 = m/L",
+                    "\u03c1 = L/m",
+                    "\u03c1 = m*L",
+                    "\u03c1 = m+L"
+                ],
+                "answer": 0,
+                "explanation": "The linear density of a homogeneous rod is given by mass per length, \u03c1 = m/L."
+            },
+            {
+                "question": "How is the moment of mass of a rod defined with respect to the origin?",
+                "choices": [
+                    "M = \u222b0^L x\u03c1(x)dx",
+                    "M = \u222b0^L \u03c1(x)dx",
+                    "M = m*x",
+                    "M = m*L"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass of a rod is calculated using the integral M = \u222b0^L x\u03c1(x)dx."
+            },
+            {
+                "question": "What is the relationship between moment of mass and center of mass?",
+                "choices": [
+                    "M = x*m",
+                    "x = M/m",
+                    "M*m = x",
+                    "x = M"
+                ],
+                "answer": 1,
+                "explanation": "Center of mass is derived from the relationship x = M/m."
+            },
+            {
+                "question": "In the seesaw example, if a person with 30 kg is on the right, what is their moment of mass if 2 meters away from P?",
+                "choices": [
+                    "60 kg-m",
+                    "70 kg-m",
+                    "30 kg-m",
+                    "40 kg-m"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass is calculated as 30 kg * 2 m = 60 kg-m."
+            },
+            {
+                "question": "If a rod has a non-homogeneous density function, how is its mass approximated?",
+                "choices": [
+                    "Using uniform density",
+                    "Using linear density function \u03c1(x)",
+                    "Assuming constant density",
+                    "Neglecting density variations"
+                ],
+                "answer": 1,
+                "explanation": "The mass of a non-homogeneous rod is approximated using its linear density function \u03c1(x)."
+            }
+        ]
+    },
+    {
+        "timestamp": "2026-03-10 11:57:05",
+        "questions": [
+            {
+                "question": "What is the SI unit for mass?",
+                "choices": [
+                    "Newton",
+                    "Kilogram",
+                    "Joule",
+                    "Pascal"
+                ],
+                "answer": 1,
+                "explanation": "The SI unit for mass is expressed in kilograms."
+            },
+            {
+                "question": "How is the moment of mass defined with respect to a point P?",
+                "choices": [
+                    "m * x",
+                    "m + x",
+                    "m / x",
+                    "m - x"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass is defined as the product of mass and distance from point P."
+            },
+            {
+                "question": "What is the formula for the center of mass x\u0304?",
+                "choices": [
+                    "x\u0304 = M/m",
+                    "x\u0304 = \u2211mx/\u2211m",
+                    "x\u0304 = m/M",
+                    "x\u0304 = \u2211m/M"
+                ],
+                "answer": 1,
+                "explanation": "The center of mass formula is derived from the ratio of the moment of mass to the total mass."
+            },
+            {
+                "question": "What happens when the moment of mass of a system equals zero?",
+                "choices": [
+                    "The system is unbalanced",
+                    "The system is in equilibrium",
+                    "The system collapses",
+                    "The system accelerates"
+                ],
+                "answer": 1,
+                "explanation": "A moment of mass of zero indicates that the system is in a state of equilibrium."
+            },
+            {
+                "question": "What does linear density (\u03c1) represent in a rod?",
+                "choices": [
+                    "Mass per unit length",
+                    "Volume per unit length",
+                    "Weight per unit length",
+                    "Area per unit length"
+                ],
+                "answer": 0,
+                "explanation": "Linear density is defined as the mass per unit length of a rod."
+            },
+            {
+                "question": "If the total mass of a rod is calculated as m = \u222b\u03c1(x)dx, what does this represent?",
+                "choices": [
+                    "Mass over time",
+                    "Mass as a function of density",
+                    "Mass per unit area",
+                    "Mass per length"
+                ],
+                "answer": 1,
+                "explanation": "This integral defines the total mass of the rod in relation to its linear density along its length."
+            },
+            {
+                "question": "What is the effect of having differing masses on a seesaw?",
+                "choices": [
+                    "It will always balance",
+                    "The heavier side moves down",
+                    "The lighter side moves down",
+                    "Both sides move equally"
+                ],
+                "answer": 1,
+                "explanation": "On a seesaw, the heavier side tends to move down due to greater moment of mass."
+            },
+            {
+                "question": "To find the moment of mass of a rod, which integral is used?",
+                "choices": [
+                    "\u222bx\u03c1(x)dx",
+                    "\u222b\u03c1(x)dx",
+                    "\u222bx^2\u03c1(x)dx",
+                    "\u222bm dx"
+                ],
+                "answer": 0,
+                "explanation": "The moment of mass of a rod is calculated using the integral of x multiplied by its linear density."
+            },
+            {
+                "question": "In the seesaw example, if one person has a mass of 20 kg and the other has 30 kg, what is the moment of mass for the heavier person?",
+                "choices": [
+                    "60 kg-meters",
+                    "30 kg-meters",
+                    "40 kg-meters",
+                    "20 kg-meters"
+                ],
+                "answer": 0,
+                "explanation": "The heavier person at 30 kg, situated 2 meters away, contributes a moment of mass of 60 kg-meters."
+            }
+        ]
+    },
+    {
+        "timestamp": "2026-03-10 16:03:42",
+        "questions": [
+            {
+                "question": "What is defined as the measure of the amount of substance?",
+                "choices": [
+                    "Density",
+                    "Weight",
+                    "Volume",
+                    "Mass"
+                ],
+                "answer": 3,
+                "explanation": "Mass is the measure of the amount of substance."
+            },
+            {
+                "question": "What unit is used for mass in the SI system?",
+                "choices": [
+                    "Pound",
+                    "Kilogram",
+                    "Gram",
+                    "Newton"
+                ],
+                "answer": 1,
+                "explanation": "The SI unit for mass is kilogram."
+            },
+            {
+                "question": "What does the moment of mass with respect to a point measure?",
+                "choices": [
+                    "Total mass",
+                    "Distance from the origin",
+                    "Rotational effect",
+                    "Gravity"
+                ],
+                "answer": 2,
+                "explanation": "The moment of mass measures the rotational effect around a point."
+            },
+            {
+                "question": "What is the formula for the center of mass of a system?",
+                "choices": [
+                    "x = m \u03a3x / \u03a3m",
+                    "x = \u03a3m / m",
+                    "x = \u03a3x / n",
+                    "x = \u03a3x\u03a3m"
+                ],
+                "answer": 0,
+                "explanation": "The center of mass is calculated using the formula x = m \u03a3x / \u03a3m."
+            },
+            {
+                "question": "In the seesaw example, the person on the left has a mass of how many kilograms?",
+                "choices": [
+                    "30 kg",
+                    "20 kg",
+                    "40 kg",
+                    "10 kg"
+                ],
+                "answer": 1,
+                "explanation": "The person on the left has a mass of 20 kg."
+            },
+            {
+                "question": "What is linear density defined as?",
+                "choices": [
+                    "Mass per unit volume",
+                    "Mass per unit length",
+                    "Total mass",
+                    "Total length"
+                ],
+                "answer": 1,
+                "explanation": "Linear density is defined as mass per unit length."
+            },
+            {
+                "question": "What is the total mass of a system represented by?",
+                "choices": [
+                    "\u03a3mx",
+                    "M",
+                    "\u03a3m",
+                    "x"
+                ],
+                "answer": 2,
+                "explanation": "The total mass of a system is represented by \u03a3m."
+            },
+            {
+                "question": "Which of the following would cause a seesaw to rotate clockwise?",
+                "choices": [
+                    "Equal mass distribution",
+                    "Lighter mass on the left",
+                    "Heavier mass on the left",
+                    "Heavier mass on the right"
+                ],
+                "answer": 3,
+                "explanation": "A heavier mass on the right would cause the seesaw to rotate clockwise."
+            },
+            {
+                "question": "To find the mass of a rod, what formula is used?",
+                "choices": [
+                    "M = \u03c1L",
+                    "M = \u03a3\u03c1(x*)\u0394x",
+                    "M = \u222b\u03c1(x)dx",
+                    "M = \u03a3m"
+                ],
+                "answer": 2,
+                "explanation": "The mass of a rod is calculated using the integral formula M = \u222b\u03c1(x)dx."
+            },
+            {
+                "question": "What is the result when the moment of mass of a system is equal to zero?",
+                "choices": [
+                    "The system is unstable",
+                    "The system is in equilibrium",
+                    "The system moves",
+                    "The system accelerates"
+                ],
+                "answer": 1,
+                "explanation": "A moment of mass equal to zero indicates that the system is in equilibrium."
+            }
+        ]
     }
 ]

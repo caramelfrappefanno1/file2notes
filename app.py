@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from util import *
 from flask import render_template
 import datetime
+import os
 
 # =========================
 # Flask Setup
@@ -22,11 +23,7 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 # =========================
 # OpenAI Setup
 # =========================
-def get_key():
-    with open("api key.txt") as f:
-        return f.read().strip()
-
-client = openai.OpenAI(api_key=get_key())
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # =========================
 # Serve Frontend
