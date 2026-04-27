@@ -106,7 +106,7 @@ def create_quiz_from_text(text):
         text = text[:max_chars]
 
     prompt = f"""
-Generate a multiple choice quiz focused ONLY on the concepts in this text.
+Generate a multiple choice quiz focused ONLY on the concepts in this text. For any math questions involved in this text, please make complex, intuitive questions based on those equations.
 
 Rules:
 - Exactly 10 questions
